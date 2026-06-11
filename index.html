@@ -10,6 +10,7 @@
   <meta property="og:type" content="website" />
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 
@@ -19,6 +20,7 @@
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">☰</button>
   <ul class="nav-links" id="nav-links">
     <li><a href="#servers" onclick="closeMenu()">Servers</a></li>
+    <li><a href="#map" onclick="closeMenu()">Map</a></li>
     <li><a href="#events" onclick="closeMenu()">Events</a></li>
     <li><a href="#status" onclick="closeMenu()">Status</a></li>
     <li><a href="#community" onclick="closeMenu()">Community</a></li>
@@ -165,6 +167,43 @@
         </div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ── Rust Map ── -->
+<section class="section-surface" id="map">
+  <div class="container">
+    <p class="section-label">▸ Current map</p>
+    <h2 class="section-title">Rust Map</h2>
+    <p class="section-sub">Procedural map — same layout each wipe, fresh saves every Thursday 4pm CT.</p>
+
+    <div class="map-meta" id="map-meta">
+      <div class="map-meta-item"><span class="map-meta-label">Seed</span><code class="map-meta-val" id="map-seed">2031645717</code></div>
+      <div class="map-meta-item"><span class="map-meta-label">Size</span><code class="map-meta-val" id="map-size">3500</code></div>
+      <div class="map-meta-item"><span class="map-meta-label">Type</span><code class="map-meta-val">Procedural</code></div>
+      <div class="map-meta-item"><span class="map-meta-label">Wipes</span><code class="map-meta-val">Thursday 4pm CT</code></div>
+    </div>
+
+    <div class="map-container" id="map-container">
+      <div id="rust-map"></div>
+      <div class="map-loading" id="map-loading">
+        <div class="map-loading-inner">
+          <div class="map-spinner"></div>
+          <p id="map-loading-text">Loading map…</p>
+        </div>
+      </div>
+      <div class="map-controls">
+        <button class="map-btn" onclick="rustMap && rustMap.zoomIn()" title="Zoom in">+</button>
+        <button class="map-btn" onclick="rustMap && rustMap.zoomOut()" title="Zoom out">−</button>
+        <button class="map-btn" onclick="resetMapView()" title="Reset view">⌂</button>
+      </div>
+      <div class="map-hint">Drag to pan · Scroll to zoom · Double-click to zoom in</div>
+    </div>
+
+    <div class="map-footer">
+      <span class="muted small">Map data via <a href="https://rustmaps.com" target="_blank" rel="noopener" style="color:var(--blue)">rustmaps.com</a></span>
+      <a href="https://rustmaps.com" target="_blank" rel="noopener" class="btn-copy" id="map-full-link" style="display:none">View Full Map ↗</a>
     </div>
   </div>
 </section>
@@ -363,6 +402,7 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

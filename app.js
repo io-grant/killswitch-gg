@@ -1,5 +1,6 @@
-// Status API — falls back gracefully when tunnel isn't active yet
+// API base — both endpoints live on the same status server
 const STATUS_API = 'https://status.superfucked.xyz/api/status';
+const MAP_API    = 'https://status.superfucked.xyz/api/map';
 // Internal fallback (only works from LAN): 'http://REDACTED-INTERNAL-IP:8765/api/status'
 
 // ── Countdown timer (Thursday 4pm CDT = 21:00 UTC) ─────────────────────────
@@ -200,6 +201,94 @@ document.getElementById('hamburger').addEventListener('click', () => {
 function closeMenu() {
   document.getElementById('nav-links').classList.remove('open');
 }
+
+// ── Rust Interactive Map ─────────────────────────────────────────────────────
+let rustMap = null;
+let mapImageLayer = null;
+const MAP_SIZE = 3500; // pixels = world units for Leaflet CRS.Simple
+
+function initMap(imageUrl) {
+  const loading = document.getElementById('map-loading');
+  const loadingText = document.getElementById('map-loading-text');
+
+  // Show the full-map link
+  const link = document.getElementById('map-full-link');
+  if (link) {
+    link.href = `https://rustmaps.com/map/${MAP_SIZE}/2031645717`;
+    link.style.display = '';
+  }
+
+  // Leaflet CRS.Simple: coordinates are pixel-space, y-axis inverted
+  rustMap = L.map('rust-map', {
+    crs: L.CRS.Simple,
+    minZoom: -3,
+    maxZoom: 2,
+    zoomSnap: 0.25,
+    zoomDelta: 0.5,
+    doubleClickZoom: true,
+    scrollWheelZoom: true,
+    attributionControl: false,
+  });
+
+  // Leaflet CRS.Simple: [lat, lng] maps to [y, x]; image top-left = [MAP_SIZE, 0]
+  const bounds = [[0, 0], [MAP_SIZE, MAP_SIZE]];
+
+  const img = new Image();
+  img.onload = () => {
+    mapImageLayer = L.imageOverlay(imageUrl, bounds, { opacity: 1 }).addTo(rustMap);
+    rustMap.fitBounds(bounds, { padding: [0, 0] });
+    loading.classList.add('hidden');
+  };
+  img.onerror = () => {
+    loadingText.textContent = 'Map image failed to load.';
+  };
+  img.src = imageUrl;
+}
+
+function resetMapView() {
+  if (!rustMap) return;
+  const bounds = [[0, 0], [MAP_SIZE, MAP_SIZE]];
+  rustMap.fitBounds(bounds, { padding: [0, 0] });
+}
+
+async function loadRustMap() {
+  const loadingText = document.getElementById('map-loading-text');
+  try {
+    const res = await fetch(MAP_API, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (data.error) {
+      loadingText.innerHTML = `Map unavailable: ${data.error}<br><br>
+        <a href="https://rustmaps.com" target="_blank" style="color:var(--blue)">
+          Configure at rustmaps.com →</a>`;
+      return;
+    }
+    if (!data.imageUrl) {
+      loadingText.textContent = 'No image URL returned from API.';
+      return;
+    }
+
+    // Update meta if API returned values
+    if (data.seed) document.getElementById('map-seed').textContent = data.seed;
+    if (data.size) document.getElementById('map-size').textContent = data.size;
+
+    initMap(data.imageUrl);
+  } catch (e) {
+    loadingText.innerHTML = `Status API offline.<br>Fix the CF tunnel to enable the live map.<br>
+      <span style="color:var(--muted);font-size:0.8em">${e.message}</span>`;
+  }
+}
+
+// Only init map when it scrolls into view (saves bandwidth)
+const mapObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting && !rustMap) {
+    loadRustMap();
+    mapObserver.disconnect();
+  }
+}, { threshold: 0.1 });
+const mapSection = document.getElementById('map');
+if (mapSection) mapObserver.observe(mapSection);
 
 // ── Nav scroll shadow ────────────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
