@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Server Status — KILLSWITCH.GG</title>
+  <meta name="description" content="Live game server status board — game, map, players, uptime." />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0A0A0F; --surface: #111118; --border: #1E1E2E;
+      --red: #E5001F; --blue: #00AAFF; --green: #00CC55;
+      --text: #F0F0F0; --muted: #6B7280;
+      --head: 'Rajdhani', sans-serif; --body: 'Inter', sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; }
+    a { color: var(--blue); text-decoration: none; }
+
+    header { padding: 48px 24px 8px; max-width: 1000px; margin: 0 auto; }
+    .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--red); }
+    h1 { font-family: var(--head); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: .02em; line-height: 1.05; margin: 6px 0 4px; }
+    h1 em { color: var(--red); font-style: normal; }
+    .sub { color: var(--muted); font-size: .9rem; }
+
+    main { max-width: 1000px; margin: 0 auto; padding: 28px 24px 64px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 18px 20px 16px; position: relative;
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+    }
+    .card.offline { opacity: .75; }
+    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .game-tag {
+      font-family: var(--mono); font-size: .62rem; letter-spacing: .12em;
+      padding: 3px 8px; border: 1px solid var(--border); color: var(--muted);
+      text-transform: uppercase;
+    }
+    .card-name { font-family: var(--head); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .03em; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+    .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+    .dot.off { background: var(--red); }
+    @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .5 } }
+
+    .players-line { font-family: var(--head); font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+    .players-line small { font-size: .85rem; color: var(--muted); font-family: var(--mono); font-weight: 400; margin-left: 6px; }
+    .meter { height: 4px; background: var(--border); margin: 10px 0 14px; }
+    .meter i { display: block; height: 100%; background: var(--red); transition: width .4s; }
+
+    .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: .78rem; }
+    .facts dt { font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); align-self: baseline; padding-top: 2px; }
+    .facts dd { font-family: var(--mono); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .facts dd.muted { color: var(--muted); }
+
+    .bar-note, footer { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+    .bar-note { font-family: var(--mono); font-size: .7rem; color: var(--muted); margin-top: 18px; }
+    footer { padding: 24px; border-top: 1px solid var(--border); margin-top: 40px; font-size: .75rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+    .state-msg { padding: 60px 20px; text-align: center; color: var(--muted); font-family: var(--mono); font-size: .85rem; border: 1px dashed var(--border); }
+  </style>
+</head>
+<body>
+<header>
+  <p class="eyebrow"><a href="index.html" style="color:var(--red)">◂ KILLSWITCH.GG</a> · live board</p>
+  <h1>Server <em>Status</em></h1>
+  <p class="sub">Game · map · players · uptime — refreshed every 30 seconds.</p>
+</header>
+
+<main>
+  <div class="state-msg" id="msg">Querying servers…</div>
+  <div class="grid" id="grid" style="display:none"></div>
+  <p class="bar-note" id="updated"></p>
+</main>
+
+<footer>
+  <span>Killswitch Status — open-source status board for game servers</span>
+  <span><a href="https://github.com/io-grant/killswitch-status" rel="noopener">github.com/io-grant/killswitch-status</a></span>
+</footer>
+
+<script>
+// API endpoint: ?api=<url> override, else same-origin /api/status (self-hosted mode)
+const API = new URLSearchParams(location.search).get('api') || 'https://status.superfucked.xyz/api/status';
+const REFRESH_MS = 30000;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const LEGACY_META = {
+  rust:                 { name: 'Rust',             game: 'rust' },
+  cs2:                  { name: 'Counter-Strike 2', game: 'cs2' },
+  minecraft_blockhead:  { name: 'MC — Blockhead',   game: 'minecraft' },
+  minecraft_everycraft: { name: 'MC — Everycraft',  game: 'minecraft' },
+};
+
+// Accept both shapes:
+//  kss:    { servers: [ {id,name,game,online,players,max_players,map,uptime_seconds,ping_ms,...} ] }
+//  legacy: { rust: {online,players,max_players,map,since}, cs2: {...}, ... }
+function normalize(data) {
+  if (Array.isArray(data.servers)) return data.servers;
+  return Object.entries(data)
+    .filter(([, v]) => v && typeof v === 'object' && 'online' in v)
+    .map(([k, v]) => ({
+      id: k,
+      name: (LEGACY_META[k] || {}).name || k,
+      game: (LEGACY_META[k] || {}).game || 'game',
+      online: !!v.online,
+      players: v.players ?? 0,
+      max_players: v.max_players ?? 0,
+      map: v.map || null,
+      ping_ms: v.ping_ms ?? null,
+      power_state: v.power_state ?? null,
+      next_restart: v.next_restart ?? null,
+      uptime_seconds: v.online && v.since ? Math.max(0, Math.floor(Date.now()/1000 - v.since)) : (v.uptime_seconds ?? null),
+    }));
+}
+
+function fmtUptime(sec) {
+  if (sec == null) return '—';
+  if (sec < 60) return `${sec}s`;
+  const d = Math.floor(sec/86400), h = Math.floor(sec%86400/3600), m = Math.floor(sec%3600/60);
+  if (d) return `${d}d ${h}h`;
+  if (h) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function card(s) {
+  const pct = s.max_players ? Math.min(100, 100 * s.players / s.max_players) : 0;
+  return `
+  <div class="card ${s.online ? '' : 'offline'}">
+    <div class="card-top">
+      <span class="game-tag">${esc(s.game)}</span>
+      <span class="card-name">${esc(s.name)}</span>
+      <span class="dot ${s.online ? 'on' : 'off'}" title="${s.online ? 'online' : 'offline'}"></span>
+    </div>
+    <div class="players-line">${s.online ? `${s.players}<small>/ ${s.max_players} players</small>` : `<small style="margin:0">OFFLINE</small>`}</div>
+    <div class="meter"><i style="width:${pct}%"></i></div>
+    <dl class="facts">
+      <dt>Map</dt><dd class="${s.map ? '' : 'muted'}">${esc(s.map || '—')}</dd>
+      <dt>Uptime</dt><dd class="${s.uptime_seconds != null ? '' : 'muted'}">${fmtUptime(s.uptime_seconds)}</dd>
+      ${s.ping_ms != null ? `<dt>Ping</dt><dd>${s.ping_ms} ms</dd>` : ''}
+      ${s.next_restart ? `<dt>Restart</dt><dd>${esc(new Date(s.next_restart).toLocaleString())}</dd>` : ''}
+    </dl>
+  </div>`;
+}
+
+async function load() {
+  const msg = document.getElementById('msg'), grid = document.getElementById('grid');
+  try {
+    const r = await fetch(API, { cache: 'no-store' });
+    const servers = normalize(await r.json());
+    if (!servers.length) { msg.textContent = 'No servers configured.'; msg.style.display = ''; grid.style.display = 'none'; return; }
+    grid.innerHTML = servers.map(card).join('');
+    grid.style.display = ''; msg.style.display = 'none';
+    document.getElementById('updated').textContent =
+      `${servers.filter(s => s.online).length}/${servers.length} online · updated ${new Date().toLocaleTimeString()}`;
+  } catch (e) {
+    grid.style.display = 'none'; msg.style.display = '';
+    msg.textContent = '⚠ Could not reach the status API — retrying…';
+  }
+}
+load();
+setInterval(load, REFRESH_MS);
+</script>
+</body>
+</html>

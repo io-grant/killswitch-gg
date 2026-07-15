@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kill Leaderboard — KILLSWITCH.GG</title>
+  <meta name="description" content="Rust kill leaderboard for the current wipe. Stats reset every Thursday. No lag. No mercy." />
+  <meta property="og:title" content="KILLSWITCH.GG — Kill Leaderboard" />
+  <meta property="og:description" content="Who's on top this wipe. Stats reset every Thursday 4pm CT." />
+  <meta property="og:type" content="website" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Leaderboard-page-only styles (tokens come from style.css) ── */
+    .lb-hero {
+      padding: 140px 24px 48px;
+      background:
+        linear-gradient(180deg, rgba(229,0,31,.06), transparent 60%),
+        var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-hero-inner { max-width: 1100px; margin: 0 auto; }
+    .lb-hero h1 {
+      font-family: var(--head);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+      line-height: 1;
+      margin: 8px 0 10px;
+    }
+    .lb-hero h1 em { color: var(--red); font-style: normal; }
+    .lb-sub { color: var(--muted); max-width: 560px; }
+    .lb-wipe-note {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 18px; padding: 6px 12px;
+      border: 1px solid var(--border); border-left: 3px solid var(--red);
+      font-family: var(--mono); font-size: .78rem; color: var(--muted);
+      background: var(--surface);
+    }
+
+    .lb-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+      max-width: 1100px; margin: 34px auto 0;
+    }
+    @media (max-width: 760px) { .lb-stats { grid-template-columns: repeat(2, 1fr); } }
+    .lb-stat {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 16px 18px;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    }
+    .lb-stat-label {
+      font-family: var(--mono); font-size: .68rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .lb-stat-value {
+      font-family: var(--head); font-weight: 700; font-size: 2rem;
+      line-height: 1.15; margin-top: 4px; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .lb-stat-value.small { font-size: 1.35rem; }
+
+    .lb-section { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+    .lb-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 22px 22px 18px;
+    }
+    .lb-panel + .lb-panel { margin-top: 28px; }
+    .lb-panel h2 {
+      font-family: var(--head); text-transform: uppercase; font-weight: 700;
+      font-size: 1.15rem; letter-spacing: .04em; margin: 0 0 2px;
+    }
+    .lb-panel .panel-sub { font-size: .8rem; color: var(--muted); margin: 0 0 16px; }
+
+    /* chart */
+    #chart-wrap { position: relative; overflow-x: auto; }
+    #kill-chart text { font-family: var(--mono); font-size: 12px; }
+    #kill-chart .bar { transition: opacity .12s; cursor: default; }
+    #kill-chart .bar-hit:hover + .bar, #kill-chart .bar:hover { opacity: .82; }
+    .lb-tooltip {
+      position: fixed; pointer-events: none; z-index: 50; display: none;
+      background: #0A0A0Fee; border: 1px solid var(--border);
+      border-left: 3px solid var(--red);
+      font-family: var(--mono); font-size: .74rem; color: var(--text);
+      padding: 8px 11px; line-height: 1.5; white-space: nowrap;
+    }
+    .lb-tooltip .tt-muted { color: var(--muted); }
+
+    /* table */
+    .lb-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .lb-table th {
+      font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--muted); text-align: left;
+      padding: 8px 10px; border-bottom: 1px solid var(--border);
+    }
+    .lb-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+    .lb-table tr:last-child td { border-bottom: none; }
+    .lb-table td.num, .lb-table th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+    .lb-rank { font-family: var(--mono); color: var(--muted); width: 42px; }
+    .lb-rank.top { color: var(--red); font-weight: 700; }
+    .lb-player { font-weight: 600; }
+    .lb-weapon { font-family: var(--mono); font-size: .76rem; color: var(--muted); }
+
+    /* recent kills feed */
+    .kill-row {
+      display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline;
+      font-family: var(--mono); font-size: .8rem;
+      padding: 9px 2px; border-bottom: 1px solid var(--border);
+    }
+    .kill-row:last-child { border-bottom: none; }
+    .kill-killer { color: var(--text); font-weight: 600; }
+    .kill-arrow { color: var(--red); }
+    .kill-victim { color: var(--muted); }
+    .kill-weapon { color: var(--blue); font-size: .72rem; }
+    .kill-time { margin-left: auto; color: var(--muted); font-size: .7rem; }
+
+    /* empty state */
+    .lb-empty {
+      text-align: center; padding: 64px 20px;
+      border: 1px dashed var(--border); background: var(--surface);
+    }
+    .lb-empty .skull { font-size: 2.4rem; opacity: .55; }
+    .lb-empty h3 {
+      font-family: var(--head); text-transform: uppercase; letter-spacing: .05em;
+      font-size: 1.5rem; margin: 12px 0 6px;
+    }
+    .lb-empty p { color: var(--muted); max-width: 420px; margin: 0 auto; font-size: .9rem; }
+    .lb-empty .lb-wipe-note { margin-top: 22px; }
+
+    .lb-updated { font-family: var(--mono); font-size: .7rem; color: var(--muted); margin-top: 14px; text-align: right; }
+    .lb-error { color: var(--muted); font-family: var(--mono); font-size: .8rem; padding: 24px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">K//<span>KILLSWITCH.GG</span></a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">☰</button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="index.html#servers">Servers</a></li>
+    <li><a href="index.html#map">Map</a></li>
+    <li><a href="leaderboard.html" style="color:var(--red)">Leaderboard</a></li>
+    <li><a href="index.html#status">Status</a></li>
+    <li><a href="index.html#community">Community</a></li>
+  </ul>
+  <a href="https://discord.gg/superfucked" class="btn-join" target="_blank" rel="noopener">Join Discord</a>
+</nav>
+
+<!-- ── Header ── -->
+<header class="lb-hero">
+  <div class="lb-hero-inner">
+    <p class="section-label">▸ Rust · current wipe</p>
+    <h1>Kill <em>Leaderboard</em></h1>
+    <p class="lb-sub">Every kill on the Rust server, tallied live from the kill feed. Fresh wipe, fresh ledger.</p>
+    <span class="lb-wipe-note">⟲ STATS RESET EVERY WIPE — THURSDAY 4PM CT</span>
+
+    <div class="lb-stats" id="lb-stats">
+      <div class="lb-stat"><div class="lb-stat-label">Total kills</div><div class="lb-stat-value" id="stat-kills">—</div></div>
+      <div class="lb-stat"><div class="lb-stat-label">Fraggers on the board</div><div class="lb-stat-value" id="stat-players">—</div></div>
+      <div class="lb-stat"><div class="lb-stat-label">Top killer</div><div class="lb-stat-value small" id="stat-top">—</div></div>
+      <div class="lb-stat"><div class="lb-stat-label">Last kill</div><div class="lb-stat-value small" id="stat-last">—</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="lb-section" id="lb-main">
+  <!-- empty state (shown when no kills yet) -->
+  <div class="lb-empty" id="lb-empty" style="display:none">
+    <div class="skull">☠</div>
+    <h3>Nobody's died yet</h3>
+    <p>The ledger is clean — for now. Kills land here the moment the feed sees them. First blood takes the top slot.</p>
+    <br/>
+    <span class="lb-wipe-note">▸ rust.superfucked.xyz:28015 — go make history</span>
+  </div>
+
+  <div id="lb-content" style="display:none">
+    <!-- chart -->
+    <div class="lb-panel">
+      <h2>Top Killers</h2>
+      <p class="panel-sub">Kills this wipe — top 10</p>
+      <div id="chart-wrap"><svg id="kill-chart" role="img" aria-label="Bar chart of top killers by kill count"></svg></div>
+    </div>
+
+    <!-- full table -->
+    <div class="lb-panel">
+      <h2>Full Board</h2>
+      <p class="panel-sub">Kills, deaths, K/D and weapon of choice</p>
+      <div style="overflow-x:auto">
+        <table class="lb-table" id="lb-table">
+          <thead><tr>
+            <th>#</th><th>Player</th>
+            <th class="num">Kills</th><th class="num">Deaths</th><th class="num">K/D</th>
+            <th>Weapon of choice</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- recent kills -->
+    <div class="lb-panel">
+      <h2>Recent Kills</h2>
+      <p class="panel-sub">Latest entries from the kill feed</p>
+      <div id="recent-kills"></div>
+    </div>
+  </div>
+
+  <div class="lb-error" id="lb-error" style="display:none">
+    ⚠ Couldn't reach the leaderboard API. It'll be back — try a refresh.
+  </div>
+
+  <p class="lb-updated" id="lb-updated"></p>
+</main>
+
+<div class="lb-tooltip" id="lb-tooltip"></div>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-bottom">
+      <span>© 2026 8dot Media · killswitch.gg</span>
+      <span class="muted">No lag. No mercy.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const LB_API = 'https://status.superfucked.xyz/api/leaderboard';
+const REFRESH_MS = 60000;
+
+// nav hamburger (match app.js behavior without loading the whole homepage script)
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const s = Math.max(0, Math.floor(Date.now()/1000 - ts));
+  if (s < 60) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+
+// ── chart: single-series horizontal bars, plain SVG ──
+function renderChart(players) {
+  const top = players.slice(0, 10);
+  const svg = $('kill-chart');
+  const wrapW = Math.max(560, ($('chart-wrap').clientWidth || 640));
+  const nameW = 150, valW = 56, padT = 6, rowH = 34, barH = 20; // bar ≤24px
+  const W = wrapW, H = padT + top.length * rowH + 4;
+  const plotW = W - nameW - valW;
+  const maxK = Math.max(...top.map(p => p.kills), 1);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', H);
+
+  const barColor = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#E5001F';
+  const grid = '#1E1E2E', textCol = '#F0F0F0', mutedCol = '#6B7280';
+  let s = '';
+
+  // recessive hairline gridlines at clean tick values
+  const tickStep = maxK <= 5 ? 1 : Math.ceil(maxK / 4);
+  for (let t = tickStep; t <= maxK; t += tickStep) {
+    const x = nameW + (t / maxK) * plotW;
+    s += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H-4}" stroke="${grid}" stroke-width="1"/>`;
+  }
+
+  top.forEach((p, i) => {
+    const y = padT + i * rowH + (rowH - barH) / 2;
+    const w = Math.max((p.kills / maxK) * plotW, 3);
+    const r = Math.min(4, w / 2); // 4px rounded data-end, square at baseline
+    const name = p.name.length > 16 ? p.name.slice(0, 15) + '…' : p.name;
+    s += `<text x="${nameW-10}" y="${y+barH/2+4}" text-anchor="end" fill="${textCol}">${esc(name)}</text>`;
+    s += `<path class="bar" d="M${nameW},${y} h${w-r} a${r},${r} 0 0 1 ${r},${r} v${barH-2*r} a${r},${r} 0 0 1 -${r},${r} h-${w-r} z" fill="${barColor}"
+          data-i="${i}"/>`;
+    s += `<text x="${nameW+w+8}" y="${y+barH/2+4}" fill="${mutedCol}">${p.kills}</text>`;
+    // oversized invisible hit target for hover (bigger than the mark)
+    s += `<rect class="bar-hit" x="0" y="${padT+i*rowH}" width="${W}" height="${rowH}" fill="transparent" data-i="${i}"/>`;
+  });
+  svg.innerHTML = s;
+
+  // tooltip layer
+  const tt = $('lb-tooltip');
+  svg.querySelectorAll('.bar-hit, .bar').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      const p = top[+el.dataset.i];
+      if (!p) return;
+      tt.innerHTML = `<strong>${esc(p.name)}</strong><br/>` +
+        `${p.kills} kills <span class="tt-muted">· ${p.deaths} deaths · ${p.kd} K/D</span>` +
+        (p.top_weapon ? `<br/><span class="tt-muted">favors</span> ${esc(p.top_weapon)}` : '');
+      tt.style.display = 'block';
+      tt.style.left = Math.min(e.clientX + 14, window.innerWidth - tt.offsetWidth - 8) + 'px';
+      tt.style.top = (e.clientY + 14) + 'px';
+    });
+    el.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
+  });
+}
+
+function renderTable(players) {
+  const tb = $('lb-table').querySelector('tbody');
+  tb.innerHTML = players.map((p, i) => `
+    <tr>
+      <td class="lb-rank ${i === 0 ? 'top' : ''}">${String(i+1).padStart(2,'0')}</td>
+      <td class="lb-player">${esc(p.name)}</td>
+      <td class="num">${p.kills}</td>
+      <td class="num">${p.deaths}</td>
+      <td class="num">${p.kd.toFixed ? p.kd.toFixed(2) : p.kd}</td>
+      <td class="lb-weapon">${esc(p.top_weapon || '—')}</td>
+    </tr>`).join('');
+}
+
+function renderRecent(recent) {
+  $('recent-kills').innerHTML = recent.map(k => `
+    <div class="kill-row">
+      <span class="kill-killer">${esc(k.killer)}</span>
+      <span class="kill-arrow">⟶ ☠</span>
+      <span class="kill-victim">${esc(k.victim)}</span>
+      ${k.weapon ? `<span class="kill-weapon">[${esc(k.weapon)}]</span>` : ''}
+      <span class="kill-time">${timeAgo(k.at)}</span>
+    </div>`).join('');
+}
+
+async function load() {
+  try {
+    const r = await fetch(LB_API, { cache: 'no-store' });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    $('lb-error').style.display = 'none';
+
+    $('stat-kills').textContent = d.total_kills;
+    $('stat-players').textContent = d.player_count;
+    $('stat-top').textContent = d.players[0] ? d.players[0].name : '—';
+    $('stat-last').textContent = timeAgo(d.last_kill_at);
+
+    const empty = !d.players.length;
+    $('lb-empty').style.display = empty ? '' : 'none';
+    $('lb-content').style.display = empty ? 'none' : '';
+    if (!empty) {
+      renderChart(d.players);
+      renderTable(d.players);
+      renderRecent(d.recent);
+    }
+    $('lb-updated').textContent = `data cached 60s · fetched ${new Date().toLocaleTimeString()}`;
+  } catch (e) {
+    $('lb-error').style.display = '';
+    $('lb-empty').style.display = 'none';
+    $('lb-content').style.display = 'none';
+  }
+}
+
+load();
+setInterval(load, REFRESH_MS);
+window.addEventListener('resize', () => {
+  // re-render chart on resize if data is on screen
+  if ($('lb-content').style.display !== 'none') load();
+});
+</script>
+</body>
+</html>
