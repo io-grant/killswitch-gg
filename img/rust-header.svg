@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A0A0F"/><stop offset="1" stop-color="#14141C"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#1E1E2A" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#E5001F" stop-opacity="0.35"/><stop offset="1" stop-color="#E5001F" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="256" fill="url(#bg)"/>
+  <rect width="512" height="256" fill="url(#grid)"/>
+  <polygon points="0,0 210,0 120,256 0,256" fill="url(#glow)"/>
+  <polygon points="0,0 14,0 14,256 0,256" fill="#E5001F"/>
+  <g font-family="JetBrainsMono Nerd Font, JetBrains Mono, monospace" font-weight="bold">
+    <text x="40" y="52" font-size="18" fill="#E5001F" letter-spacing="4">K//KILLSWITCH.GG</text>
+    <text x="38" y="138" font-size="92" fill="#F5F5F7" letter-spacing="-2">RUST</text>
+    <text x="42" y="176" font-size="20" fill="#00AAFF" letter-spacing="2">VANILLA 1.5x · WEEKLY WIPE</text>
+    <text x="42" y="212" font-size="15" fill="#6B7280" letter-spacing="3">NO LAG. NO MERCY.</text>
+  </g>
+  <g fill="#00CC55"><circle cx="478" cy="40" r="6"/></g>
+  <text x="466" y="45" font-family="JetBrainsMono Nerd Font, monospace" font-size="12" fill="#00CC55" text-anchor="end" letter-spacing="2">ONLINE</text>
+  <path d="M330 256 L512 96 L512 256 Z" fill="#E5001F" opacity="0.12"/>
+  <path d="M400 256 L512 158 L512 256 Z" fill="#E5001F" opacity="0.25"/>
+</svg>
