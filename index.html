@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KILLSWITCH.GG</title>
-  <meta name="description" content="Community game servers: Rust weekly-wipe, CS2 1v1 multi-arena, and a modded Minecraft server (Hard Boys Pack). Player-run, always online." />
+  <meta name="description" content="Rust weekly wipe. CS2 1v1 arena. Modded Minecraft. Player-run game servers." />
   <meta property="og:title" content="KILLSWITCH.GG" />
-  <meta property="og:description" content="Section 1: Servers. Rust · CS2 1v1 Arena · Modded Minecraft. Press any key." />
+  <meta property="og:description" content="Rust. CS2 1v1. Modded Minecraft. Three servers, one network." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://killswitch-gg.pages.dev/img/og.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -41,17 +41,17 @@
 <section class="hero" id="hero">
   <div class="hero-inner">
     <div>
-      <p class="hero-eyebrow">KILLSWITCH.GG · an 8dot Media server network · rev. 2026-09</p>
-      <h1>A problem has been detected.<br>Your session has been improved.</h1>
-      <p class="hero-sub">Three player-run game servers on hardware we own. Rust wipes weekly, CS2 is a 1v1 arena ladder, Minecraft runs 153 mods. Press any key.</p>
+      <p class="hero-eyebrow">KILLSWITCH.GG · rev. 2026-09</p>
+      <h1>Three servers.<br>One network.</h1>
+      <p class="hero-sub">Rust. CS2 1v1. Modded Minecraft.<br>Our hardware. Our rules.</p>
       <div class="hero-ctas">
         <a href="#servers" class="btn-primary">[1] View servers</a>
         <a href="#events" class="btn-outline">[4] Next wipe</a>
       </div>
       <div class="boot" aria-hidden="true">
-        <div>&gt; mount rust.superfucked.xyz:28015 ... ok</div>
-        <div>&gt; mount cs2.superfucked.xyz ........... ok</div>
-        <div>&gt; mount superfucked.xyz (minecraft) .. ok</div>
+        <div>&gt; rust ......... ok</div>
+        <div>&gt; cs2 .......... ok</div>
+        <div>&gt; minecraft .... ok</div>
         <div>&gt; ready. <span class="cursor"></span></div>
       </div>
     </div>
@@ -74,7 +74,7 @@
         </div>
       </div>
       <div class="wipe-countdown" id="wipe-countdown">
-        <span class="wipe-label">NEXT RUST WIPE · THURSDAY 16:00 CT</span>
+        <span class="wipe-label">NEXT RUST WIPE</span>
         <div class="countdown-timer" id="countdown-timer">
           <div class="countdown-unit"><span id="cd-days">--</span><small>DAYS</small></div>
           <div class="countdown-sep">:</div>
@@ -94,7 +94,7 @@
   <div class="container">
     <p class="sec-num">SECTION 1 OF 6</p>
     <h2 class="sec-title">Servers</h2>
-    <p class="sec-sub">Three games. One network. Press and hold a button to copy the connect string; no misclicks.</p>
+    <p class="sec-sub">Hold a button to copy the connect string.</p>
     <div class="server-grid">
 
       <div class="server-card">
@@ -103,17 +103,17 @@
           <div class="server-header"><h3 class="server-title">1.1 Rust</h3><span class="status-badge" id="rust-badge">CHECKING</span></div>
           <div class="server-players" id="rust-players">— / 69 players</div>
           <ul class="server-details">
-            <li>Map wipes every <strong>Thursday 16:00 CT</strong>. New 3500 procedural seed each week.</li>
-            <li><strong>Blueprints carry over.</strong> World, bases and inventories reset.</li>
-            <li>1.5x gather. Vanilla rules. More minicopters than stock.</li>
-            <li>Convoy events, death notes in chat, Discord kill feed, per-wipe <a href="/leaderboard">ranking</a>.</li>
-            <li>Auto wipe with 30-min and 5-min warnings. 69 slots. VAC/EAC.</li>
+            <li>Wipes <strong>Thursday 16:00 CT</strong>. New seed every week.</li>
+            <li><strong>Blueprints stay.</strong> Bases and loot reset.</li>
+            <li>1.5x gather. Vanilla rules. Extra minicopters.</li>
+            <li>Convoys. Kill feed. Per-wipe <a href="/leaderboard">ranking</a>.</li>
+            <li>3500 map. 69 slots. EAC.</li>
           </ul>
           <div class="server-ip-row">
             <code class="server-ip">rust.superfucked.xyz:28015</code>
             <button class="hold" data-copy="client.connect rust.superfucked.xyz:28015"><span>HOLD TO COPY</span></button>
           </div>
-          <p class="server-hint">In-game: F1 console, paste <code>client.connect rust.superfucked.xyz:28015</code>. Listed under Modded as [KILLSWITCH.GG] Rust.</p>
+          <p class="server-hint">F1 console → <code>client.connect rust.superfucked.xyz:28015</code>. Or search Modded for KILLSWITCH.</p>
         </div>
       </div>
 
@@ -123,17 +123,17 @@
           <div class="server-header"><h3 class="server-title">1.2 CS2</h3><span class="status-badge" id="cs2-badge">CHECKING</span></div>
           <div class="server-players" id="cs2-players">— / 16 players</div>
           <ul class="server-details">
-            <li><strong>Multi-arena 1v1 ladder.</strong> Win and move up an arena, lose and drop down.</li>
-            <li>25 CS2-native <code>am_</code> workshop maps in rotation. Maps download on join.</li>
-            <li><code>!guns</code> sets your loadout, <code>!rounds</code> picks round types: rifle, pistol, AWP, scout, deagle.</li>
-            <li><code>!challenge name</code> duels a specific player. <code>!afk</code> sits out.</li>
-            <li>VAC secure. No bots. 16 slots. All-time <a href="/leaderboard#cs2">ranking</a>.</li>
+            <li><strong>1v1 ladder.</strong> Win, move up. Lose, move down.</li>
+            <li>25 arena maps. Auto-download on join.</li>
+            <li><code>!guns</code> loadout. <code>!rounds</code> round types.</li>
+            <li><code>!challenge name</code> to duel. <code>!afk</code> to sit out.</li>
+            <li>VAC. No bots. 16 slots. All-time <a href="/leaderboard#cs2">ranking</a>.</li>
           </ul>
           <div class="server-ip-row">
             <code class="server-ip">cs2.superfucked.xyz</code>
             <button class="hold" data-copy="connect cs2.superfucked.xyz"><span>HOLD TO COPY</span></button>
           </div>
-          <p class="server-hint">In-game console: <code>connect cs2.superfucked.xyz</code>, no port needed. Also in the Community Server Browser as [KILLSWITCH.GG] 1v1 Arena.</p>
+          <p class="server-hint">Console → <code>connect cs2.superfucked.xyz</code>. No port needed.</p>
         </div>
       </div>
 
@@ -143,17 +143,17 @@
           <div class="server-header"><h3 class="server-title">1.3 Minecraft</h3><span class="status-badge" id="mc-badge">CHECKING</span></div>
           <div class="server-players" id="mc-players">— / 20 players</div>
           <ul class="server-details">
-            <li><strong>Modded survival.</strong> The <a href="#minecraft">Hard Boys Pack</a>: Expert Survival, 153 mods, NeoForge 26.2.</li>
-            <li>Minecraft 26.2 Java Edition. No whitelist. Online mode.</li>
-            <li>World pre-generated to a 6,000-block radius. No frontier lag.</li>
-            <li>Glowing-ores resource pack offered on join. Optional.</li>
-            <li>Nightly backups. Restarts daily at 05:00 CT only when empty.</li>
+            <li><strong>Modded survival.</strong> <a href="#minecraft">Hard Boys Pack</a>, 153 mods.</li>
+            <li>Minecraft 26.2 Java. No whitelist.</li>
+            <li>World pre-generated. No frontier lag.</li>
+            <li>Optional glowing-ores pack on join.</li>
+            <li>Nightly backups. Restart 05:00 CT if empty.</li>
           </ul>
           <div class="server-ip-row">
             <code class="server-ip">superfucked.xyz</code>
             <button class="hold" data-copy="superfucked.xyz"><span>HOLD TO COPY</span></button>
           </div>
-          <p class="server-hint">Install the pack first (section 4), then add <code>superfucked.xyz</code> in Multiplayer. <code>blockhead.superfucked.xyz:25565</code> also works.</p>
+          <p class="server-hint">Install the pack (section 4). Add <code>superfucked.xyz</code> in Multiplayer.</p>
         </div>
       </div>
 
@@ -165,13 +165,13 @@
 <section class="band band-white" id="features" style="padding-top: 0;">
   <div class="container">
     <p class="sec-num">SECTION 2 OF 6</p>
-    <h2 class="sec-title">System notes</h2>
-    <p class="sec-sub">Not a hosting company. One person, a Proxmox cluster, and servers tuned by the people who play on them.</p>
+    <h2 class="sec-title">Notes</h2>
+    <p class="sec-sub">Not a host. One person, one rack, tuned by players.</p>
     <div class="features-grid">
-      <div class="feature-card"><div class="feature-num">2.1</div><div class="feature-title">Always on</div><p class="feature-desc">Our own hardware. Servers auto-restart on crash, updates apply on restart, and every server is watched around the clock with Discord alerts.</p></div>
-      <div class="feature-card"><div class="feature-num">2.2</div><div class="feature-title">Modded</div><p class="feature-desc">Oxide plugins and a custom convoy on Rust. The K4-Arenas ladder on CS2. A 153-mod NeoForge pack on Minecraft.</p></div>
-      <div class="feature-card"><div class="feature-num">2.3</div><div class="feature-title">Fresh weekly</div><p class="feature-desc">Rust wipes itself every Thursday at 16:00 CT with a new seed. Warnings in-game and on Discord. Blueprints kept. Ranking resets with it.</p></div>
-      <div class="feature-card"><div class="feature-num">2.4</div><div class="feature-title">Invite only</div><p class="feature-desc">The Discord has no public link on purpose. Play a few rounds and ask, or email us. Inside: kill feed, wipe alerts, the pack download, the admins.</p></div>
+      <div class="feature-card"><div class="feature-num">2.1</div><div class="feature-title">Always on</div><p class="feature-desc">Own hardware. Auto-restart. Watched 24/7.</p></div>
+      <div class="feature-card"><div class="feature-num">2.2</div><div class="feature-title">Modded</div><p class="feature-desc">Oxide on Rust. Arena ladder on CS2. 153 mods on Minecraft.</p></div>
+      <div class="feature-card"><div class="feature-num">2.3</div><div class="feature-title">Fresh weekly</div><p class="feature-desc">Rust wipes Thursday 16:00 CT. New seed. Blueprints kept.</p></div>
+      <div class="feature-card"><div class="feature-num">2.4</div><div class="feature-title">Invite only</div><p class="feature-desc">No public Discord link. Play, then ask.</p></div>
     </div>
   </div>
 </section>
@@ -181,7 +181,7 @@
   <div class="container">
     <p class="sec-num">SECTION 3 OF 6</p>
     <h2 class="sec-title">Status</h2>
-    <p class="sec-sub">Refreshed every 30 seconds. <span id="last-updated">Checking…</span> · <a href="/status" style="color: var(--white);">Full board →</a></p>
+    <p class="sec-sub"><span id="last-updated">Checking…</span> · <a href="/status" style="color: var(--white);">Full board →</a></p>
     <div class="status-table">
       <div class="status-table-head"><span>SERVER</span><span>STATUS</span><span>PLAYERS</span><span>ADDRESS</span><span>NOW</span></div>
       <div class="status-table-row">
@@ -213,17 +213,17 @@
 <section class="band band-blue" id="minecraft" style="padding-top: 0;">
   <div class="container">
     <p class="sec-num">SECTION 4 OF 6</p>
-    <h2 class="sec-title">Installing the Hard Boys Pack</h2>
-    <p class="sec-sub">Blockhead runs a custom build of Expert Survival. You need the same mods to join. Four steps.</p>
+    <h2 class="sec-title">The pack</h2>
+    <p class="sec-sub">Same mods as the server, or no entry. Four steps.</p>
     <div class="pack-grid">
       <div>
         <ol class="steps">
-          <li><strong>Get the pack zip</strong> from <code>#minecraft-server</code> in the Discord. Current build: Hard Boys Pack v1.0.</li>
-          <li><strong>Import it</strong> in the CurseForge app: Minecraft → Create Custom Profile → Import → pick the zip. It installs NeoForge 26.2.0.75 and every mod.</li>
-          <li><strong>Give it RAM.</strong> 6 GB or more in CurseForge settings makes the first load much happier.</li>
-          <li><strong>Add the server</strong> as <code>superfucked.xyz</code> in Multiplayer and join. Accept the resource pack when prompted.</li>
+          <li><strong>Get the zip</strong> from <code>#minecraft-server</code> on Discord.</li>
+          <li><strong>Import it</strong> in CurseForge: Create Custom Profile → Import.</li>
+          <li><strong>Give it 6 GB RAM</strong> in CurseForge settings.</li>
+          <li><strong>Add</strong> <code>superfucked.xyz</code> in Multiplayer. Join.</li>
         </ol>
-        <p class="muted small">Playing from inside the same house as the server? Use <code style="background: var(--white); color: var(--blue); padding: 0 4px;">192.168.1.237:25565</code>. The router won't loop the public address back.</p>
+        <p class="muted small">Same house as the server? Use <code style="background: var(--white); color: var(--blue); padding: 0 4px;">192.168.1.237:25565</code>.</p>
       </div>
       <div class="pack-facts">
         <div class="fact"><span class="fact-label">BASE PACK</span><span class="fact-val">Expert Survival v2.8</span></div>
@@ -243,8 +243,8 @@
 <section class="band band-white" id="events">
   <div class="container">
     <p class="sec-num">SECTION 5 OF 6</p>
-    <h2 class="sec-title">Wipe schedule</h2>
-    <p class="sec-sub">Rust wipes every Thursday at 16:00 Central. Warnings hit the server and Discord at 15:30 and 15:55. Blueprints stay.</p>
+    <h2 class="sec-title">Wipes</h2>
+    <p class="sec-sub">Thursdays, 16:00 CT. Warnings at 15:30 and 15:55.</p>
     <div class="event-list" id="event-list"></div>
   </div>
 </section>
@@ -254,7 +254,7 @@
   <div class="container">
     <p class="sec-num">SECTION 6 OF 6</p>
     <h2 class="sec-title">Invite</h2>
-    <p class="sec-sub">Small on purpose. Everyone here was invited by someone who plays.</p>
+    <p class="sec-sub">Small on purpose.</p>
     <div class="stats-row">
       <div class="stat-item"><div class="stat-number">3</div><div class="stat-label">SERVERS · ONE NETWORK</div></div>
       <div class="stat-item"><div class="stat-number">THU</div><div class="stat-label">RUST WIPE DAY · WEEKLY</div></div>
@@ -263,7 +263,7 @@
     </div>
     <div class="invite-box">
       <h3>Discord is invite-only</h3>
-      <p>Invites come from admins, not a public link. Play a few rounds and ask in chat, or email <a href="mailto:hello@8dotmedia.com?subject=KILLSWITCH.GG%20Discord%20invite">hello@8dotmedia.com</a> with your Steam or Minecraft name. Inside you get wipe alerts, the live kill feed, the Minecraft pack download and a direct line to the admins.</p>
+      <p>No public link. Ask in-game, or email <a href="mailto:hello@8dotmedia.com?subject=KILLSWITCH.GG%20Discord%20invite">hello@8dotmedia.com</a> with your Steam name.</p>
     </div>
   </div>
 </section>
@@ -274,14 +274,14 @@
     <div class="footer-top">
       <div>
         <div class="footer-logo">Killswitch.gg</div>
-        <p class="footer-tagline">An 8dot Media property. Servers currently answer on superfucked.xyz addresses.</p>
+        <p class="footer-tagline">An 8dot Media property.</p>
         <div class="footer-socials"><a href="https://8dotmedia.com" target="_blank" rel="noopener">8dotmedia.com</a><a href="https://superfucked.xyz" target="_blank" rel="noopener">superfucked.xyz</a></div>
       </div>
       <div class="footer-col"><h4>Servers</h4><ul><li><a href="#servers">1.1 Rust</a></li><li><a href="#servers">1.2 CS2 1v1 Arena</a></li><li><a href="#minecraft">1.3 Minecraft · Hard Boys Pack</a></li></ul></div>
       <div class="footer-col"><h4>Pages</h4><ul><li><a href="/leaderboard">Ranking</a></li><li><a href="/status">Status board</a></li><li><a href="#events">Wipe schedule</a></li><li><a href="#community">Get an invite</a></li></ul></div>
       <div class="footer-col"><h4>About</h4><ul><li><a href="https://8dotmedia.com">8dot Media</a></li><li><a href="mailto:hello@8dotmedia.com">Contact</a></li></ul></div>
     </div>
-    <div class="footer-bottom"><span>© 2026 8dot Media · KILLSWITCH.GG</span><span>Press any key to continue.</span></div>
+    <div class="footer-bottom"><span>© 2026 8dot Media · KILLSWITCH.GG</span><span>Press any key.</span></div>
   </div>
 </footer>
 

@@ -46,14 +46,14 @@ function generateEventCards() {
     const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', month: 'numeric', day: 'numeric' }).formatToParts(w).map(x => [x.type, x.value]));
     cards.push(`<div class="event-card">
         <div class="event-date"><div class="event-day">${String(p.day).padStart(2, '0')}</div><div class="event-month">${months[+p.month - 1]}</div></div>
-        <div><div class="event-title">5.${i + 1} Rust weekly map wipe</div><div class="event-detail">16:00 CT · new 3500 seed · bases and inventories reset · blueprints kept · ranking resets${i === 0 ? ' · NEXT' : ''}</div></div>
+        <div><div class="event-title">5.${i + 1} Rust wipe</div><div class="event-detail">16:00 CT · new seed · blueprints kept</div></div>
         <span class="event-badge">${i === 0 ? 'NEXT WIPE' : 'WEEKLY'}</span>
       </div>`);
     from = new Date(w.getTime() + 60000);
   }
   const convoy = `<div class="event-card">
         <div class="event-date"><div class="event-day">∞</div><div class="event-month">AUTO</div></div>
-        <div><div class="event-title">5.0 Rust convoy</div><div class="event-detail">Every 60 to 90 min · armed escort with NPC guards · elite crate for whoever clears it · marked on the map, announced in chat</div></div>
+        <div><div class="event-title">5.0 Rust convoy</div><div class="event-detail">Every 60–90 min · guarded · elite crate</div></div>
         <span class="event-badge">RECURRING</span>
       </div>`;
   container.innerHTML = cards[0] + convoy + cards.slice(1).join('');
