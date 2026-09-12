@@ -39,20 +39,26 @@
 
 <!-- ── Hero ── -->
 <section class="hero" id="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-slide" style="background-image: url('https://cdn.cloudflare.steamstatic.com/steam/apps/252490/library_hero.jpg');"></div>
+    <div class="hero-slide" style="background-image: url('https://cdn.cloudflare.steamstatic.com/steam/apps/730/library_hero.jpg');"></div>
+    <div class="hero-slide" style="background-image: url('img/mc-hero.svg');"></div>
+    <div class="hero-scan"></div>
+  </div>
   <div class="hero-inner">
     <div>
       <p class="hero-eyebrow">KILLSWITCH.GG · rev. 2026-09</p>
-      <h1>Three servers.<br>One network.</h1>
-      <p class="hero-sub">Rust. CS2 1v1. Modded Minecraft.<br>Our hardware. Our rules.</p>
+      <h1>Press<br>any key.</h1>
+      <p class="hero-sub">The Killswitch network.<br>Rust. CS2 1v1. Modded Minecraft.</p>
       <div class="hero-ctas">
         <a href="#servers" class="btn-primary">[1] View servers</a>
         <a href="#events" class="btn-outline">[4] Next wipe</a>
       </div>
       <div class="boot" aria-hidden="true">
-        <div>&gt; rust ......... ok</div>
-        <div>&gt; cs2 .......... ok</div>
-        <div>&gt; minecraft .... ok</div>
-        <div>&gt; ready. <span class="cursor"></span></div>
+        <div id="boot-rust">&gt; rust ......... ok</div>
+        <div id="boot-cs2">&gt; cs2 .......... ok</div>
+        <div id="boot-mc">&gt; minecraft .... ok</div>
+        <div>&gt; ready. type <b>/</b> for terminal <span class="cursor"></span></div>
       </div>
     </div>
     <div>
@@ -286,6 +292,12 @@
 </footer>
 
 <div class="toast" id="toast"></div>
+<div class="wipe-alert" id="wipe-alert" hidden></div>
+<div class="term" id="term" hidden role="dialog" aria-label="Terminal">
+  <div class="term-head"><span>KILLSWITCH.GG — terminal</span><span>ESC to close</span></div>
+  <div class="term-out" id="term-out"><div>&gt; type <b>help</b> and press Enter</div></div>
+  <form class="term-form" id="term-form" autocomplete="off"><span>&gt;</span><input id="term-in" type="text" spellcheck="false" aria-label="Command" /></form>
+</div>
 <script src="app.js"></script>
 </body>
 </html>
