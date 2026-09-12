@@ -118,6 +118,7 @@ document.querySelectorAll('.hold').forEach(btn => {
 const hamburger = document.getElementById('hamburger');
 if (hamburger) hamburger.addEventListener('click', () => document.getElementById('nav-links').classList.toggle('open'));
 function closeMenu() { const n = document.getElementById('nav-links'); if (n) n.classList.remove('open'); }
+document.querySelectorAll('[data-close-menu]').forEach(el => el.addEventListener('click', closeMenu));
 
 // ── Keyboard: number keys jump to sections, any key scrolls past the hero ──
 const KEYMAP = { '1': '#servers', '2': '#minecraft', '3': '/leaderboard', '4': '#events', '5': '/status', '6': '#community', 'Enter': '#community' };

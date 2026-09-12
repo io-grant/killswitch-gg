@@ -1,3 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /src-art/
+
 Sitemap: https://killswitch-gg.pages.dev/sitemap.xml

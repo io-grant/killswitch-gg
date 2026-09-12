@@ -1,0 +1,14 @@
+{
+  "name": "KILLSWITCH.GG",
+  "short_name": "KILLSWITCH",
+  "description": "Player-run game servers: Rust weekly wipe, CS2 1v1 arena, modded Minecraft.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0000AA",
+  "theme_color": "#0000AA",
+  "icons": [
+    { "src": "/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/img/discord-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

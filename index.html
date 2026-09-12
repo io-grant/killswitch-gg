@@ -19,20 +19,30 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="canonical" href="https://killswitch-gg.pages.dev/" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"KILLSWITCH.GG",
+   "url":"https://killswitch-gg.pages.dev/","logo":"https://killswitch-gg.pages.dev/img/apple-touch-icon.png",
+   "description":"Player-run game servers: Rust weekly wipe, CS2 1v1 arena, modded Minecraft.",
+   "parentOrganization":{"@type":"Organization","name":"8dot Media","url":"https://8dotmedia.com"},
+   "contactPoint":{"@type":"ContactPoint","contactType":"community","email":"hello@8dotmedia.com"}}
+  </script>
 </head>
 <body>
+<a class="skip" href="#servers">Skip to servers</a>
 
 <!-- ── Nav ── -->
 <nav id="nav">
   <a href="/" class="nav-logo">Killswitch<span>.gg</span></a>
   <button class="nav-hamburger" id="hamburger" aria-label="Menu">[=]</button>
   <ul class="nav-links" id="nav-links">
-    <li><a href="#servers" data-key="1" onclick="closeMenu()">Servers</a></li>
-    <li><a href="#minecraft" data-key="2" onclick="closeMenu()">Minecraft pack</a></li>
+    <li><a href="#servers" data-key="1" data-close-menu>Servers</a></li>
+    <li><a href="#minecraft" data-key="2" data-close-menu>Minecraft pack</a></li>
     <li><a href="/leaderboard" data-key="3">Ranking</a></li>
-    <li><a href="#events" data-key="4" onclick="closeMenu()">Wipes</a></li>
+    <li><a href="#events" data-key="4" data-close-menu>Wipes</a></li>
     <li><a href="/status" data-key="5">Status</a></li>
-    <li><a href="#community" data-key="6" onclick="closeMenu()">Invite</a></li>
+    <li><a href="#community" data-key="6" data-close-menu>Invite</a></li>
   </ul>
   <a href="#community" class="btn-join">[ENTER] Get an invite</a>
 </nav>
@@ -40,8 +50,8 @@
 <!-- ── Hero ── -->
 <section class="hero" id="hero">
   <div class="hero-bg" aria-hidden="true">
-    <div class="hero-slide" style="background-image: url('https://cdn.cloudflare.steamstatic.com/steam/apps/252490/library_hero.jpg');"></div>
-    <div class="hero-slide" style="background-image: url('https://cdn.cloudflare.steamstatic.com/steam/apps/730/library_hero.jpg');"></div>
+    <div class="hero-slide" style="background-image: url('img/rust-hero.webp');"></div>
+    <div class="hero-slide" style="background-image: url('img/cs2-hero.webp');"></div>
     <div class="hero-slide" style="background-image: url('img/mc-hero.svg');"></div>
     <div class="hero-scan"></div>
   </div>
@@ -64,7 +74,7 @@
     <div>
       <div class="status-widget" id="hero-widget">
         <div class="status-widget-header"><span class="pulse-dot"></span>LIVE STATUS · REFRESH 30s</div>
-        <div class="status-rows">
+        <div class="status-rows" aria-live="polite">
           <div class="status-row">
             <span class="s-dot" id="hw-rust-dot"></span><span class="s-name">RUST</span>
             <span class="s-players" id="hw-rust">— / 69</span><span class="s-addr">rust.superfucked.xyz:28015</span>
@@ -188,7 +198,7 @@
     <p class="sec-num">SECTION 3 OF 6</p>
     <h2 class="sec-title">Status</h2>
     <p class="sec-sub"><span id="last-updated">Checking…</span> · <a href="/status" style="color: var(--white);">Full board →</a></p>
-    <div class="status-table">
+    <div class="status-table" aria-live="polite">
       <div class="status-table-head"><span>SERVER</span><span>STATUS</span><span>PLAYERS</span><span>ADDRESS</span><span>NOW</span></div>
       <div class="status-table-row">
         <span><span class="game-tag">RUST</span>Weekly wipe</span>
