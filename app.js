@@ -169,3 +169,61 @@ if (termForm) {
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !term.hidden) closeTerm(); });
 }
+
+// ── Rust map plate: pan + zoom, no libraries ──────────────────────────────
+const MAP_API = 'https://status.superfucked.xyz/api/map';
+(function initMapPlate() {
+  const plate = document.getElementById('map-plate');
+  if (!plate) return;
+  const view = document.getElementById('map-view'), img = document.getElementById('map-img');
+  const msg = document.getElementById('map-msg'), tools = document.getElementById('map-tools');
+  let scale = 1, minScale = 1, x = 0, y = 0, natural = 0, loaded = false;
+
+  const apply = () => { img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`; };
+  const clamp = () => {
+    const w = natural * scale, h = natural * scale;
+    const vw = view.clientWidth, vh = view.clientHeight;
+    x = w <= vw ? (vw - w) / 2 : Math.min(0, Math.max(vw - w, x));
+    y = h <= vh ? (vh - h) / 2 : Math.min(0, Math.max(vh - h, y));
+  };
+  const fit = () => { minScale = Math.max(view.clientWidth / natural, view.clientHeight / natural); scale = minScale; x = (view.clientWidth - natural * scale) / 2; y = (view.clientHeight - natural * scale) / 2; apply(); };
+  const zoomAt = (factor, cx, cy) => {
+    const next = Math.min(minScale * 6, Math.max(minScale, scale * factor));
+    const r = view.getBoundingClientRect();
+    const px = (cx ?? r.width / 2), py = (cy ?? r.height / 2);
+    x = px - (px - x) * (next / scale); y = py - (py - y) * (next / scale);
+    scale = next; clamp(); apply();
+  };
+
+  let drag = null;
+  view.addEventListener('pointerdown', e => { if (!loaded) return; drag = { sx: e.clientX - x, sy: e.clientY - y }; view.setPointerCapture(e.pointerId); view.classList.add('dragging'); });
+  view.addEventListener('pointermove', e => { if (!drag) return; x = e.clientX - drag.sx; y = e.clientY - drag.sy; clamp(); apply(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => view.addEventListener(ev, () => { drag = null; view.classList.remove('dragging'); }));
+  view.addEventListener('wheel', e => { if (!loaded) return; e.preventDefault(); const r = view.getBoundingClientRect(); zoomAt(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+  view.addEventListener('dblclick', e => { const r = view.getBoundingClientRect(); zoomAt(1.6, e.clientX - r.left, e.clientY - r.top); });
+  tools.addEventListener('click', e => {
+    const b = e.target.closest('[data-zoom]'); if (!b) return;
+    if (b.dataset.zoom === 'in') zoomAt(1.35);
+    else if (b.dataset.zoom === 'out') zoomAt(1 / 1.35);
+    else fit();
+  });
+  window.addEventListener('resize', () => { if (loaded) fit(); });
+
+  fetch(MAP_API, { cache: 'no-store' }).then(r => r.json()).then(d => {
+    const seedLine = document.getElementById('map-seed-line');
+    const facts = document.getElementById('map-facts');
+    const link = document.getElementById('map-link');
+    if (d.url) link.href = d.url;
+    seedLine.textContent = d.seed ? `SEED ${d.seed} · ${d.size}` : '';
+    const top = (d.monuments || []).filter(m => !/^Powerline|^Power Substation|Rock$|^Tunnel Entrance/.test(m.type)).slice(0, 4);
+    facts.innerHTML = [
+      ['SEED', d.seed ?? '—'], ['SIZE', d.size ?? '—'],
+      ['MONUMENTS', d.totalMonuments ?? '—'], ['WIPED', 'Thursdays 16:00 CT'],
+    ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') +
+      (top.length ? `<dt>NOTABLE</dt><dd style="grid-column: span 3">${top.map(m => `${m.type}${m.count > 1 ? ' ×' + m.count : ''}`).join(' · ')}</dd>` : '');
+    if (!d.imageUrl) { msg.innerHTML = d.pending ? '&gt; map generating — it lands a few minutes after a wipe' : `&gt; ${d.error || 'map unavailable'}`; return; }
+    img.onload = () => { natural = img.naturalWidth; loaded = true; msg.hidden = true; view.hidden = false; tools.hidden = false; fit(); };
+    img.onerror = () => { msg.innerHTML = '&gt; map image failed to load'; };
+    img.src = d.imageUrl;
+  }).catch(() => { msg.innerHTML = '&gt; map API unreachable'; });
+})();

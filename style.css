@@ -254,3 +254,23 @@ footer { background: var(--white); color: var(--blue); border-top: 2px solid var
 .term-out b { color: var(--white); }
 .term-form { display: flex; gap: 8px; padding: 10px 14px; border-top: 2px solid var(--white); }
 .term-form input { flex: 1; background: transparent; border: 0; color: var(--white); font-family: var(--mono); font-size: 0.85rem; outline: none; caret-color: var(--white); }
+
+/* ── Figure plate (map) ───────────────────────────────────── */
+.plate { border: 2px solid var(--blue); margin-bottom: 28px; background: var(--white); }
+.plate-head { display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 2px solid var(--blue); font-size: 0.72rem; letter-spacing: 0.06em; }
+.plate-head span:last-child { color: var(--ink-muted); }
+.plate-body { position: relative; background: var(--blue); }
+.plate-msg { padding: 60px 20px; text-align: center; color: var(--dim); font-size: 0.82rem; }
+.map-view { position: relative; height: 460px; overflow: hidden; cursor: grab; touch-action: none; background: var(--blue); }
+.map-view.dragging { cursor: grabbing; }
+.map-view img { position: absolute; top: 0; left: 0; transform-origin: 0 0; image-rendering: auto; user-select: none; -webkit-user-drag: none; }
+@media (max-width: 700px) { .map-view { height: 320px; } }
+.map-tools { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; }
+.map-btn { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; background: var(--white); color: var(--blue); border: 2px solid var(--blue); padding: 6px 10px; cursor: pointer; min-width: 34px; }
+.map-btn:hover { background: var(--blue); color: var(--white); border-color: var(--white); }
+.plate-foot { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 12px 14px; border-top: 2px solid var(--blue); flex-wrap: wrap; }
+.plate-facts { display: grid; grid-template-columns: auto auto auto auto; gap: 2px 18px; margin: 0; font-size: 0.74rem; }
+.plate-facts dt { color: var(--ink-muted); }
+.plate-facts dd { margin: 0 0 6px; }
+@media (max-width: 700px) { .plate-facts { grid-template-columns: auto auto; } }
+.plate-link { font-size: 0.76rem; white-space: nowrap; }

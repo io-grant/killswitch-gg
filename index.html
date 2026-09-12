@@ -251,6 +251,29 @@
     <p class="sec-num">SECTION 5 OF 6</p>
     <h2 class="sec-title">Wipes</h2>
     <p class="sec-sub">Thursdays, 16:00 CT. Warnings at 15:30 and 15:55.</p>
+
+    <div class="plate" id="map-plate">
+      <div class="plate-head">
+        <span>FIG. 5.0 — THIS WEEK'S MAP</span>
+        <span id="map-seed-line">reading seed…</span>
+      </div>
+      <div class="plate-body" id="map-body">
+        <div class="plate-msg" id="map-msg">&gt; fetching map…</div>
+        <div class="map-view" id="map-view" hidden>
+          <img id="map-img" alt="Current Rust map" draggable="false" />
+        </div>
+        <div class="map-tools" id="map-tools" hidden>
+          <button class="map-btn" data-zoom="in" aria-label="Zoom in">+</button>
+          <button class="map-btn" data-zoom="out" aria-label="Zoom out">−</button>
+          <button class="map-btn" data-zoom="reset" aria-label="Reset">RESET</button>
+        </div>
+      </div>
+      <div class="plate-foot">
+        <dl class="plate-facts" id="map-facts"></dl>
+        <a class="plate-link" id="map-link" href="https://rustmaps.com" target="_blank" rel="noopener">Open on rustmaps.com →</a>
+      </div>
+    </div>
+
     <div class="event-list" id="event-list"></div>
   </div>
 </section>
