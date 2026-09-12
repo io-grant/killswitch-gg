@@ -15,7 +15,7 @@
   <polygon points="0,0 210,0 120,256 0,256" fill="url(#glow)"/>
   <polygon points="0,0 14,0 14,256 0,256" fill="#E5001F"/>
   <g font-family="JetBrainsMono Nerd Font, JetBrains Mono, monospace" font-weight="bold">
-    <text x="40" y="52" font-size="18" fill="#E5001F" letter-spacing="4">K//KILLSWITCH.GG</text>
+    <text x="40" y="52" font-size="18" fill="#E5001F" letter-spacing="4">//KILLSWITCH.GG</text>
     <text x="38" y="138" font-size="92" fill="#F5F5F7" letter-spacing="-2">RUST</text>
     <text x="42" y="176" font-size="20" fill="#00AAFF" letter-spacing="2">VANILLA 1.5x · WEEKLY WIPE</text>
     <text x="42" y="212" font-size="15" fill="#6B7280" letter-spacing="3">NO LAG. NO MERCY.</text>
