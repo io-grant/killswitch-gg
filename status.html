@@ -4,161 +4,184 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Server Status — KILLSWITCH.GG</title>
-  <meta name="description" content="Live game server status board — game, map, players, uptime." />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <meta name="description" content="Live status for the KILLSWITCH.GG game servers: Rust, CS2 1v1 Arena and modded Minecraft. Players, map and uptime, refreshed every 30 seconds." />
+  <meta property="og:title" content="KILLSWITCH.GG — Server Status" />
+  <meta property="og:description" content="Live players, map and uptime for Rust, CS2 and Minecraft." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://killswitch-gg.pages.dev/img/og.png" />
+  <link rel="icon" href="favicon.ico" sizes="32x32" />
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://status.superfucked.xyz" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
   <style>
-    :root {
-      --bg: #0A0A0F; --surface: #111118; --border: #1E1E2E;
-      --red: #E5001F; --blue: #00AAFF; --green: #00CC55;
-      --text: #F0F0F0; --muted: #6B7280;
-      --head: 'Rajdhani', sans-serif; --body: 'Inter', sans-serif; --mono: 'JetBrains Mono', monospace;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; }
-    a { color: var(--blue); text-decoration: none; }
-
-    header { padding: 48px 24px 8px; max-width: 1000px; margin: 0 auto; }
-    .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--red); }
-    h1 { font-family: var(--head); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: .02em; line-height: 1.05; margin: 6px 0 4px; }
-    h1 em { color: var(--red); font-style: normal; }
-    .sub { color: var(--muted); font-size: .9rem; }
-
-    main { max-width: 1000px; margin: 0 auto; padding: 28px 24px 64px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      padding: 18px 20px 16px; position: relative;
-      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
-    }
-    .card.offline { opacity: .75; }
-    .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .game-tag {
-      font-family: var(--mono); font-size: .62rem; letter-spacing: .12em;
-      padding: 3px 8px; border: 1px solid var(--border); color: var(--muted);
-      text-transform: uppercase;
-    }
-    .card-name { font-family: var(--head); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .03em; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+    .st-hero { padding: 120px 24px 32px; background: linear-gradient(180deg, rgba(229,0,31,.06), transparent 60%), var(--bg); border-bottom: 1px solid var(--border); }
+    .st-hero-inner { max-width: 1100px; margin: 0 auto; }
+    .st-hero h1 { font-family: var(--head); font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin: 8px 0 10px; }
+    .st-hero h1 em { color: var(--red); font-style: normal; }
+    .st-sub { color: var(--muted); max-width: 620px; }
+    .st-main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 64px; }
+    .st-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .st-card { background: var(--surface); border: 1px solid var(--border); padding: 18px 20px 16px; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); transition: opacity .3s; }
+    .st-card.offline { opacity: .7; }
+    .st-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .st-card-name { font-family: var(--head); font-weight: 700; font-size: 1.15rem; text-transform: uppercase; letter-spacing: .03em; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--muted); }
     .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
     .dot.off { background: var(--red); }
     @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .5 } }
-
-    .players-line { font-family: var(--head); font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+    .players-line { font-family: var(--head); font-size: 1.7rem; font-weight: 700; line-height: 1.1; min-height: 1.9rem; }
     .players-line small { font-size: .85rem; color: var(--muted); font-family: var(--mono); font-weight: 400; margin-left: 6px; }
     .meter { height: 4px; background: var(--border); margin: 10px 0 14px; }
-    .meter i { display: block; height: 100%; background: var(--red); transition: width .4s; }
-
+    .meter i { display: block; height: 100%; width: 0; background: var(--red); transition: width .4s; }
     .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: .78rem; }
-    .facts dt { font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); align-self: baseline; padding-top: 2px; }
+    .facts dt { font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
     .facts dd { font-family: var(--mono); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .facts dd.muted { color: var(--muted); }
-
-    .bar-note, footer { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
-    .bar-note { font-family: var(--mono); font-size: .7rem; color: var(--muted); margin-top: 18px; }
-    footer { padding: 24px; border-top: 1px solid var(--border); margin-top: 40px; font-size: .75rem; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-
-    .state-msg { padding: 60px 20px; text-align: center; color: var(--muted); font-family: var(--mono); font-size: .85rem; border: 1px dashed var(--border); }
+    .st-connect { margin-top: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .st-connect code { font-size: .78rem; background: var(--bg); border: 1px solid var(--border); padding: 4px 8px; }
+    .st-note { font-family: var(--mono); font-size: .7rem; color: var(--muted); margin-top: 18px; }
+    .st-legend { margin-top: 26px; font-size: .85rem; color: var(--muted); max-width: 720px; line-height: 1.6; }
+    .st-legend a { color: var(--blue); }
   </style>
 </head>
 <body>
-<header>
-  <p class="eyebrow"><a href="index.html" style="color:var(--red)">◂ KILLSWITCH.GG</a> · live board</p>
-  <h1>Server <em>Status</em></h1>
-  <p class="sub">Game · map · players · uptime — refreshed every 30 seconds.</p>
+
+<!-- ── Nav (shared) ── -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">//<span>KILLSWITCH.GG</span></a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">☰</button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="index.html#servers">Servers</a></li>
+    <li><a href="index.html#minecraft">Minecraft Pack</a></li>
+    <li><a href="leaderboard.html">Leaderboard</a></li>
+    <li><a href="index.html#events">Wipes</a></li>
+    <li><a href="status.html" style="color:var(--red)">Status</a></li>
+    <li><a href="index.html#community">Community</a></li>
+  </ul>
+  <a href="index.html#community" class="btn-join">Get an Invite</a>
+</nav>
+
+<header class="st-hero">
+  <div class="st-hero-inner">
+    <p class="section-label">▸ Live board</p>
+    <h1>Server <em>Status</em></h1>
+    <p class="st-sub">Players, map and uptime for every server, refreshed every 30 seconds. Green means you can join right now.</p>
+  </div>
 </header>
 
-<main>
-  <div class="state-msg" id="msg">Querying servers…</div>
-  <div class="grid" id="grid" style="display:none"></div>
-  <p class="bar-note" id="updated"></p>
+<main class="st-main">
+  <div class="st-grid" id="grid">
+    <div class="st-card" id="card-rust">
+      <div class="st-card-top"><span class="game-tag rust-tag">RUST</span><span class="st-card-name">Rust · Weekly Wipe</span><span class="dot" id="dot-rust"></span></div>
+      <div class="players-line" id="pl-rust"><small style="margin:0">checking…</small></div>
+      <div class="meter"><i id="m-rust"></i></div>
+      <dl class="facts">
+        <dt>Map</dt><dd id="map-rust" class="muted">Procedural 3500</dd>
+        <dt>Uptime</dt><dd id="up-rust" class="muted">—</dd>
+        <dt>Wipes</dt><dd>Thursday 4:00 PM CT</dd>
+      </dl>
+      <div class="st-connect"><code>rust.superfucked.xyz:28015</code><button class="btn-copy" onclick="copyIP('rust.superfucked.xyz:28015', this)">Copy IP</button></div>
+    </div>
+
+    <div class="st-card" id="card-cs2">
+      <div class="st-card-top"><span class="game-tag cs2-tag">CS2</span><span class="st-card-name">1v1 Arena</span><span class="dot" id="dot-cs2"></span></div>
+      <div class="players-line" id="pl-cs2"><small style="margin:0">checking…</small></div>
+      <div class="meter"><i id="m-cs2"></i></div>
+      <dl class="facts">
+        <dt>Map</dt><dd id="map-cs2" class="muted">—</dd>
+        <dt>Uptime</dt><dd id="up-cs2" class="muted">—</dd>
+        <dt>Mode</dt><dd>Multi-arena ladder · 25 maps</dd>
+      </dl>
+      <div class="st-connect"><code>connect cs2.superfucked.xyz</code><button class="btn-copy" onclick="copyIP('connect cs2.superfucked.xyz', this)">Copy</button></div>
+    </div>
+
+    <div class="st-card" id="card-mc">
+      <div class="st-card-top"><span class="game-tag mc-tag">MC</span><span class="st-card-name">Blockhead · Hard Boys Pack</span><span class="dot" id="dot-mc"></span></div>
+      <div class="players-line" id="pl-mc"><small style="margin:0">checking…</small></div>
+      <div class="meter"><i id="m-mc"></i></div>
+      <dl class="facts">
+        <dt>Version</dt><dd>26.2 · NeoForge 26.2.0.75</dd>
+        <dt>Uptime</dt><dd id="up-mc" class="muted">—</dd>
+        <dt>Restart</dt><dd>Daily 5:00 AM CT if empty</dd>
+      </dl>
+      <div class="st-connect"><code>superfucked.xyz</code><button class="btn-copy" onclick="copyIP('superfucked.xyz', this)">Copy IP</button></div>
+    </div>
+  </div>
+
+  <p class="st-note" id="updated">Connecting to the status API…</p>
+  <p class="st-legend">Player counts for Rust and CS2 come straight from the game servers. Minecraft shows whether the server is up; live player counts for it are coming. If a card goes red, the server is restarting or updating and is usually back within a few minutes. <a href="index.html#servers">Back to the servers →</a></p>
 </main>
 
+<!-- ── Footer (shared) ── -->
 <footer>
-  <span>Killswitch Status — open-source status board for game servers</span>
-  <span><a href="https://github.com/io-grant/killswitch-gg" rel="noopener">github.com/io-grant/killswitch-gg</a></span>
+  <div class="container footer-inner">
+    <div class="footer-bottom">
+      <span>© 2026 8dot Media · KILLSWITCH.GG</span>
+      <span class="muted">No lag. No mercy.</span>
+    </div>
+  </div>
 </footer>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// API endpoint: ?api=<url> override, else same-origin /api/status (self-hosted mode)
-const API = new URLSearchParams(location.search).get('api') || 'https://status.superfucked.xyz/api/status';
+const API = 'https://status.superfucked.xyz/api/status';
 const REFRESH_MS = 30000;
+const SLOTS = { rust: 69, cs2: 16, mc: 20 };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-const LEGACY_META = {
-  rust:                 { name: 'Rust',             game: 'rust' },
-  cs2:                  { name: 'Counter-Strike 2', game: 'cs2' },
-  minecraft_blockhead:  { name: 'MC — Blockhead',   game: 'minecraft' },
-};
-
-// Accept both shapes:
-//  kss:    { servers: [ {id,name,game,online,players,max_players,map,uptime_seconds,ping_ms,...} ] }
-//  legacy: { rust: {online,players,max_players,map,since}, cs2: {...}, ... }
-function normalize(data) {
-  if (Array.isArray(data.servers)) return data.servers;
-  return Object.entries(data)
-    .filter(([, v]) => v && typeof v === 'object' && 'online' in v)
-    .map(([k, v]) => ({
-      id: k,
-      name: (LEGACY_META[k] || {}).name || k,
-      game: (LEGACY_META[k] || {}).game || 'game',
-      online: !!v.online,
-      players: v.players ?? 0,
-      max_players: v.max_players ?? 0,
-      map: v.map || null,
-      ping_ms: v.ping_ms ?? null,
-      power_state: v.power_state ?? null,
-      next_restart: v.next_restart ?? null,
-      uptime_seconds: v.online && v.since ? Math.max(0, Math.floor(Date.now()/1000 - v.since)) : (v.uptime_seconds ?? null),
-    }));
-}
+const $ = id => document.getElementById(id);
 
 function fmtUptime(sec) {
   if (sec == null) return '—';
-  if (sec < 60) return `${sec}s`;
-  const d = Math.floor(sec/86400), h = Math.floor(sec%86400/3600), m = Math.floor(sec%3600/60);
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60);
   if (d) return `${d}d ${h}h`;
   if (h) return `${h}h ${m}m`;
   return `${m}m`;
 }
 
-function card(s) {
-  const pct = s.max_players ? Math.min(100, 100 * s.players / s.max_players) : 0;
-  return `
-  <div class="card ${s.online ? '' : 'offline'}">
-    <div class="card-top">
-      <span class="game-tag">${esc(s.game)}</span>
-      <span class="card-name">${esc(s.name)}</span>
-      <span class="dot ${s.online ? 'on' : 'off'}" title="${s.online ? 'online' : 'offline'}"></span>
-    </div>
-    <div class="players-line">${s.online ? `${s.players}<small>/ ${s.max_players} players</small>` : `<small style="margin:0">OFFLINE</small>`}</div>
-    <div class="meter"><i style="width:${pct}%"></i></div>
-    <dl class="facts">
-      <dt>Map</dt><dd class="${s.map ? '' : 'muted'}">${esc(s.map || '—')}</dd>
-      <dt>Uptime</dt><dd class="${s.uptime_seconds != null ? '' : 'muted'}">${fmtUptime(s.uptime_seconds)}</dd>
-      ${s.ping_ms != null ? `<dt>Ping</dt><dd>${s.ping_ms} ms</dd>` : ''}
-      ${s.next_restart ? `<dt>Restart</dt><dd>${esc(new Date(s.next_restart).toLocaleString())}</dd>` : ''}
-    </dl>
-  </div>`;
+function paint(key, s, fallbackMax) {
+  const online = !!(s && s.online);
+  const max = (s && s.max_players) || fallbackMax;
+  const players = (s && s.players) || 0;
+  $('card-' + key).classList.toggle('offline', !online);
+  $('dot-' + key).className = 'dot ' + (online ? 'on' : 'off');
+  $('pl-' + key).innerHTML = online ? `${players}<small>/ ${max} players</small>` : `<small style="margin:0">OFFLINE</small>`;
+  $('m-' + key).style.width = (online && max ? Math.min(100, 100 * players / max) : 0) + '%';
+  const up = online && s.since ? Math.max(0, Math.floor(Date.now() / 1000 - s.since)) : null;
+  const upEl = $('up-' + key); upEl.textContent = fmtUptime(up); upEl.className = up == null ? 'muted' : '';
+  const mapEl = $('map-' + key);
+  if (mapEl && s && s.map) { mapEl.textContent = s.map; mapEl.className = ''; }
 }
 
 async function load() {
-  const msg = document.getElementById('msg'), grid = document.getElementById('grid');
   try {
     const r = await fetch(API, { cache: 'no-store' });
-    const servers = normalize(await r.json());
-    if (!servers.length) { msg.textContent = 'No servers configured.'; msg.style.display = ''; grid.style.display = 'none'; return; }
-    grid.innerHTML = servers.map(card).join('');
-    grid.style.display = ''; msg.style.display = 'none';
-    document.getElementById('updated').textContent =
-      `${servers.filter(s => s.online).length}/${servers.length} online · updated ${new Date().toLocaleTimeString()}`;
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    paint('rust', d.rust, SLOTS.rust);
+    paint('cs2', d.cs2, SLOTS.cs2);
+    paint('mc', d.minecraft_blockhead, SLOTS.mc);
+    const online = ['rust', 'cs2', 'minecraft_blockhead'].filter(k => d[k] && d[k].online).length;
+    $('updated').textContent = `${online}/3 online · updated ${new Date().toLocaleTimeString()}`;
   } catch (e) {
-    grid.style.display = 'none'; msg.style.display = '';
-    msg.textContent = '⚠ Could not reach the status API — retrying…';
+    $('updated').textContent = '⚠ Could not reach the status API — retrying every 30 s';
   }
 }
 load();
 setInterval(load, REFRESH_MS);
+
+function copyIP(value, btn) {
+  const original = btn ? btn.textContent : '';
+  navigator.clipboard.writeText(value).then(() => {
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = original; }, 2000); }
+    const t = $('toast'); if (t) { t.textContent = '✓ Copied: ' + value; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+  });
+}
+$('hamburger').addEventListener('click', () => $('nav-links').classList.toggle('open'));
 </script>
 </body>
 </html>
