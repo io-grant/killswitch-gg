@@ -1,297 +1,172 @@
-// API base — both endpoints live on the same status server
+// KILLSWITCH.GG — site script
+// Status API lives on the status server (CT106) behind a Cloudflare tunnel.
 const STATUS_API = 'https://status.superfucked.xyz/api/status';
-const MAP_API    = 'https://status.superfucked.xyz/api/map';
-// Internal fallback (only works from LAN): 'http://REDACTED-INTERNAL-IP:8765/api/status'
 
-// ── Countdown timer (Thursday 4pm CDT = 21:00 UTC) ─────────────────────────
-function nextThursday4pmCT() {
-  const now = new Date();
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-  // CDT = UTC-5 during daylight saving (March–November), UTC-6 otherwise
-  const month = now.getUTCMonth() + 1;
-  const cdtOffset = (month >= 3 && month <= 11) ? -5 : -6;
-  const cdtNow = new Date(utcMs + cdtOffset * 3600000);
+// Slot counts (fallbacks when the API doesn't report max_players)
+const SLOTS = { rust: 69, cs2: 16, mc: 20 };
 
-  // Find next Thursday at 16:00 CDT
-  let day = cdtNow.getDay(); // 0=Sun, 4=Thu
-  let daysUntilThursday = (4 - day + 7) % 7;
-  if (daysUntilThursday === 0 && (cdtNow.getHours() > 16 || (cdtNow.getHours() === 16 && cdtNow.getMinutes() >= 0))) {
-    daysUntilThursday = 7; // already past today's wipe, next week
+// ── Wipe countdown: Thursday 16:00 America/Chicago ────────────────────────
+// Uses Intl to get the real Chicago offset, so DST is handled correctly.
+function chicagoOffsetMinutes(date) {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago', hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+  const p = Object.fromEntries(fmt.formatToParts(date).map(x => [x.type, x.value]));
+  const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+  return Math.round((asUTC - date.getTime()) / 60000);
+}
+
+function nextWipe(from = new Date()) {
+  // Walk forward day by day until we hit a Thursday 16:00 Chicago that is in the future.
+  for (let i = 0; i < 8; i++) {
+    const probe = new Date(from.getTime() + i * 86400000);
+    const off = chicagoOffsetMinutes(probe);
+    const local = new Date(probe.getTime() + off * 60000); // wall clock in Chicago, expressed as UTC fields
+    if (local.getUTCDay() !== 4) continue;
+    const wipeLocal = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), 16, 0, 0);
+    const wipeUTC = wipeLocal - off * 60000;
+    if (wipeUTC > from.getTime()) return new Date(wipeUTC);
   }
-
-  const wipeCDT = new Date(cdtNow);
-  wipeCDT.setDate(cdtNow.getDate() + daysUntilThursday);
-  wipeCDT.setHours(16, 0, 0, 0);
-
-  // Convert back to UTC ms
-  return new Date(wipeCDT.getTime() - cdtOffset * 3600000).getTime();
+  return null;
 }
 
 function updateCountdown() {
-  const target = nextThursday4pmCT();
-  const diff = target - Date.now();
-  if (diff <= 0) {
-    document.getElementById('cd-days').textContent = '00';
-    document.getElementById('cd-hours').textContent = '00';
-    document.getElementById('cd-mins').textContent = '00';
-    document.getElementById('cd-secs').textContent = '00';
-    return;
-  }
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
-  const secs = Math.floor((diff % 60000) / 1000);
-  document.getElementById('cd-days').textContent  = String(days).padStart(2,'0');
-  document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
-  document.getElementById('cd-mins').textContent  = String(mins).padStart(2,'0');
-  document.getElementById('cd-secs').textContent  = String(secs).padStart(2,'0');
+  const target = nextWipe();
+  const diff = target ? target.getTime() - Date.now() : 0;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v).padStart(2, '0'); };
+  if (diff <= 0) { ['cd-days', 'cd-hours', 'cd-mins', 'cd-secs'].forEach(id => set(id, 0)); return; }
+  set('cd-days', Math.floor(diff / 86400000));
+  set('cd-hours', Math.floor((diff % 86400000) / 3600000));
+  set('cd-mins', Math.floor((diff % 3600000) / 60000));
+  set('cd-secs', Math.floor((diff % 60000) / 1000));
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
+if (document.getElementById('cd-days')) { updateCountdown(); setInterval(updateCountdown, 1000); }
 
-// ── Generate wipe event cards ───────────────────────────────────────────────
+// ── Wipe event cards ───────────────────────────────────────────────────────
 function generateEventCards() {
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const now = new Date();
-  const events = [];
-
-  // Next 5 Thursdays
-  let d = new Date(now);
-  let found = 0;
-  while (found < 5) {
-    d.setDate(d.getDate() + 1);
-    if (d.getDay() === 4) { // Thursday
-      const label = found === 0 ? 'NEXT WIPE' : 'WEEKLY';
-      events.push({ day: d.getDate(), month: months[d.getMonth()], label });
-      found++;
-    }
-  }
-
   const container = document.getElementById('event-list');
-  container.innerHTML = events.map((e, i) => `
-    <div class="event-card">
-      <div class="event-date">
-        <div class="event-day">${String(e.day).padStart(2,'0')}</div>
-        <div class="event-month">${e.month}</div>
-      </div>
-      <div>
-        <div class="event-title">Rust Server — Weekly Wipe</div>
-        <div class="event-detail">rust.superfucked.xyz · 4:00 PM CT · Fresh map saves · All progress reset${i === 0 ? ' · <strong>This Thursday</strong>' : ''}</div>
-      </div>
-      <span class="event-badge">${e.label}</span>
-    </div>
-  `).join('');
-
-  // Insert a Dangerous Treasures event after first wipe card
-  const dtCard = `
-    <div class="event-card">
-      <div class="event-date">
-        <div class="event-day">∞</div>
-        <div class="event-month">Auto</div>
-      </div>
-      <div>
-        <div class="event-title">Dangerous Treasures</div>
-        <div class="event-detail">Rust server · Auto-spawns every 90 min · NPC guards · Elite crate loot</div>
-      </div>
-      <span class="event-badge">RECURRING</span>
-    </div>
-  `;
-  container.children[0].insertAdjacentHTML('afterend', dtCard);
+  if (!container) return;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const cards = [];
+  let from = new Date();
+  for (let i = 0; i < 5; i++) {
+    const w = nextWipe(from);
+    if (!w) break;
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', month: 'numeric', day: 'numeric' })
+      .formatToParts(w).map(x => [x.type, x.value]));
+    cards.push(`
+      <div class="event-card">
+        <div class="event-date">
+          <div class="event-day">${String(p.day).padStart(2, '0')}</div>
+          <div class="event-month">${months[+p.month - 1]}</div>
+        </div>
+        <div>
+          <div class="event-title">Rust — Weekly Map Wipe</div>
+          <div class="event-detail">4:00 PM CT · new 3500 seed · bases &amp; inventories reset · blueprints kept · kill leaderboard resets${i === 0 ? ' · <strong>next up</strong>' : ''}</div>
+        </div>
+        <span class="event-badge">${i === 0 ? 'NEXT WIPE' : 'WEEKLY'}</span>
+      </div>`);
+    from = new Date(w.getTime() + 60000);
+  }
+  const convoy = `
+      <div class="event-card">
+        <div class="event-date">
+          <div class="event-day">∞</div>
+          <div class="event-month">Auto</div>
+        </div>
+        <div>
+          <div class="event-title">Rust — Convoy</div>
+          <div class="event-detail">Spawns every 60–90 min · armed escort with NPC guards · elite crate for whoever clears it · marked on the map, announced in chat</div>
+        </div>
+        <span class="event-badge">RECURRING</span>
+      </div>`;
+  container.innerHTML = cards[0] + convoy + cards.slice(1).join('');
 }
 generateEventCards();
 
-// ── Status API ──────────────────────────────────────────────────────────────
+// ── Live status ────────────────────────────────────────────────────────────
+function badge(id, online) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = online ? '● ONLINE' : '● OFFLINE';
+  el.className = 'status-badge ' + (online ? 'online' : 'offline');
+}
+function dot(id, online) {
+  const el = document.getElementById(id);
+  if (el) el.className = 's-dot ' + (online ? 'online' : 'offline');
+}
+function text(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
 function applyStatus(data) {
   const rust = data.rust || {};
-  const cs2  = data.cs2  || {};
-  const mc   = data.minecraft_blockhead || {};
-  const ec   = data.minecraft_everycraft || {};
+  const cs2 = data.cs2 || {};
+  const mc = data.minecraft_blockhead || {};
 
-  // Helper
-  function badge(el, online) {
-    if (!el) return;
-    el.textContent = online ? '● ONLINE' : '● OFFLINE';
-    el.className = 'status-badge ' + (online ? 'online' : 'offline');
-  }
-  function dot(id, online) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.className = 's-dot ' + (online ? 'online' : 'offline');
-  }
+  const rustMax = rust.max_players || SLOTS.rust;
+  const cs2Max = cs2.max_players || SLOTS.cs2;
+  const mcMax = mc.max_players || SLOTS.mc;
 
   // Hero widget
-  if (rust.online !== undefined) {
-    document.getElementById('hw-rust').textContent = `${rust.players ?? 0} / 50`;
-    dot('hw-rust-dot', rust.online);
-  }
-  if (cs2.online !== undefined) {
-    document.getElementById('hw-cs2').textContent = `${cs2.players ?? 0} / ${cs2.max_players || 16}`;
-    dot('hw-cs2-dot', cs2.online);
-  }
-  const mcOnline = mc.online || ec.online;
-  if (mc.online !== undefined) {
-    document.getElementById('hw-mc').textContent = `${mc.players ?? 0} / 40`;
-    dot('hw-mc-dot', mcOnline);
-  }
+  text('hw-rust', `${rust.players ?? 0} / ${rustMax}`); dot('hw-rust-dot', !!rust.online);
+  text('hw-cs2', `${cs2.players ?? 0} / ${cs2Max}`); dot('hw-cs2-dot', !!cs2.online);
+  text('hw-mc', `${mc.players ?? 0} / ${mcMax}`); dot('hw-mc-dot', !!mc.online);
 
   // Server cards
-  badge(document.getElementById('rust-badge'), rust.online);
-  document.getElementById('rust-players').textContent = `${rust.players ?? 0} / 50 players`;
-
-  badge(document.getElementById('cs2-badge'), cs2.online);
-  document.getElementById('cs2-players').textContent = `${cs2.players ?? 0} / ${cs2.max_players || 16} players`;
-
-  badge(document.getElementById('mc-badge'), mc.online);
-  document.getElementById('mc-players').textContent = `${mc.players ?? 0} / 40 players`;
+  badge('rust-badge', !!rust.online); text('rust-players', `${rust.players ?? 0} / ${rustMax} players`);
+  badge('cs2-badge', !!cs2.online); text('cs2-players', `${cs2.players ?? 0} / ${cs2Max} players`);
+  badge('mc-badge', !!mc.online); text('mc-players', `${mc.players ?? 0} / ${mcMax} players`);
 
   // Status table
-  badge(document.getElementById('st-rust-badge'), rust.online);
-  badge(document.getElementById('st-cs2-badge'), cs2.online);
-  badge(document.getElementById('st-mc-badge'), mc.online);
-  badge(document.getElementById('st-ec-badge'), ec.online);
+  badge('st-rust-badge', !!rust.online); text('st-rust-players', `${rust.players ?? 0} / ${rustMax}`);
+  badge('st-cs2-badge', !!cs2.online); text('st-cs2-players', `${cs2.players ?? 0} / ${cs2Max}`);
+  badge('st-mc-badge', !!mc.online); text('st-mc-players', `${mc.players ?? 0} / ${mcMax}`);
+  if (rust.map) text('st-rust-event', `${rust.map} · wipes Thu 4 PM CT`);
+  if (cs2.map) text('st-cs2-event', `Now playing: ${cs2.map}`);
 
-  document.getElementById('st-rust-players').textContent = `${rust.players ?? 0} / 50`;
-  document.getElementById('st-cs2-players').textContent  = `${cs2.players ?? 0} / ${cs2.max_players || 16}`;
-  document.getElementById('st-mc-players').textContent   = `${mc.players ?? 0}`;
-  document.getElementById('st-ec-players').textContent   = `${ec.players ?? 0}`;
-
-  // Last updated timestamp
-  const el = document.getElementById('last-updated');
-  if (el) el.textContent = `Last updated: just now`;
+  text('last-updated', `Last updated ${new Date().toLocaleTimeString()}`);
 }
 
 async function fetchStatus() {
   try {
     const res = await fetch(STATUS_API, { cache: 'no-store' });
     if (!res.ok) throw new Error(res.status);
-    const data = await res.json();
-    applyStatus(data);
+    applyStatus(await res.json());
   } catch (e) {
-    // API unreachable — leave static display
-    const el = document.getElementById('last-updated');
-    if (el) el.textContent = 'Status API offline — fix CF tunnel';
+    text('last-updated', 'Live status unavailable right now');
   }
 }
 fetchStatus();
 setInterval(fetchStatus, 30000);
 
-// ── Copy IP ─────────────────────────────────────────────────────────────────
-function copyIP(ip, btn) {
-  navigator.clipboard.writeText(ip).then(() => {
+// ── Copy to clipboard ──────────────────────────────────────────────────────
+function copyIP(value, btn) {
+  const original = btn ? btn.textContent : '';
+  navigator.clipboard.writeText(value).then(() => {
     if (btn) {
       btn.textContent = 'Copied!';
       btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Copy IP'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
     }
-    showToast('✓ Copied: ' + ip);
-  }).catch(() => showToast('Copy failed — manual: ' + ip));
+    showToast('✓ Copied: ' + value);
+  }).catch(() => showToast('Copy failed — ' + value));
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
+  if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── Mobile nav ───────────────────────────────────────────────────────────────
-document.getElementById('hamburger').addEventListener('click', () => {
-  document.getElementById('nav-links').classList.toggle('open');
-});
-function closeMenu() {
-  document.getElementById('nav-links').classList.remove('open');
-}
+// ── Mobile nav ─────────────────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+if (hamburger) hamburger.addEventListener('click', () => document.getElementById('nav-links').classList.toggle('open'));
+function closeMenu() { const n = document.getElementById('nav-links'); if (n) n.classList.remove('open'); }
 
-// ── Rust Interactive Map ─────────────────────────────────────────────────────
-let rustMap = null;
-let mapImageLayer = null;
-const MAP_SIZE = 3500; // pixels = world units for Leaflet CRS.Simple
-
-function initMap(imageUrl) {
-  const loading = document.getElementById('map-loading');
-  const loadingText = document.getElementById('map-loading-text');
-
-  // Show the full-map link
-  const link = document.getElementById('map-full-link');
-  if (link) {
-    link.href = `https://rustmaps.com/map/${MAP_SIZE}/2031645717`;
-    link.style.display = '';
-  }
-
-  // Leaflet CRS.Simple: coordinates are pixel-space, y-axis inverted
-  rustMap = L.map('rust-map', {
-    crs: L.CRS.Simple,
-    minZoom: -3,
-    maxZoom: 2,
-    zoomSnap: 0.25,
-    zoomDelta: 0.5,
-    doubleClickZoom: true,
-    scrollWheelZoom: true,
-    attributionControl: false,
-  });
-
-  // Leaflet CRS.Simple: [lat, lng] maps to [y, x]; image top-left = [MAP_SIZE, 0]
-  const bounds = [[0, 0], [MAP_SIZE, MAP_SIZE]];
-
-  const img = new Image();
-  img.onload = () => {
-    mapImageLayer = L.imageOverlay(imageUrl, bounds, { opacity: 1 }).addTo(rustMap);
-    rustMap.fitBounds(bounds, { padding: [0, 0] });
-    loading.classList.add('hidden');
-  };
-  img.onerror = () => {
-    loadingText.textContent = 'Map image failed to load.';
-  };
-  img.src = imageUrl;
-}
-
-function resetMapView() {
-  if (!rustMap) return;
-  const bounds = [[0, 0], [MAP_SIZE, MAP_SIZE]];
-  rustMap.fitBounds(bounds, { padding: [0, 0] });
-}
-
-async function loadRustMap() {
-  const loadingText = document.getElementById('map-loading-text');
-  try {
-    const res = await fetch(MAP_API, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    if (data.error) {
-      loadingText.innerHTML = `Map unavailable: ${data.error}<br><br>
-        <a href="https://rustmaps.com" target="_blank" style="color:var(--blue)">
-          Configure at rustmaps.com →</a>`;
-      return;
-    }
-    if (!data.imageUrl) {
-      loadingText.textContent = 'No image URL returned from API.';
-      return;
-    }
-
-    // Update meta if API returned values
-    if (data.seed) document.getElementById('map-seed').textContent = data.seed;
-    if (data.size) document.getElementById('map-size').textContent = data.size;
-
-    initMap(data.imageUrl);
-  } catch (e) {
-    loadingText.innerHTML = `Status API offline.<br>Fix the CF tunnel to enable the live map.<br>
-      <span style="color:var(--muted);font-size:0.8em">${e.message}</span>`;
-  }
-}
-
-// Only init map when it scrolls into view (saves bandwidth)
-const mapObserver = new IntersectionObserver((entries) => {
-  if (entries[0].isIntersecting && !rustMap) {
-    loadRustMap();
-    mapObserver.disconnect();
-  }
-}, { threshold: 0.1 });
-const mapSection = document.getElementById('map');
-if (mapSection) mapObserver.observe(mapSection);
-
-// ── Nav scroll shadow ────────────────────────────────────────────────────────
+// ── Nav scroll shadow ──────────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
-  document.getElementById('nav').style.boxShadow =
-    window.scrollY > 10 ? '0 2px 20px rgba(0,0,0,0.4)' : '';
+  const nav = document.getElementById('nav');
+  if (nav) nav.style.boxShadow = window.scrollY > 10 ? '0 2px 20px rgba(0,0,0,0.4)' : '';
 });

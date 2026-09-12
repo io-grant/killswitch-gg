@@ -192,7 +192,7 @@ section { padding: 5.5rem 2rem; }
 }
 .server-card:hover { border-color: var(--red); transform: translateY(-3px); }
 .server-art {
-  height: 140px; display: flex; align-items: center; justify-content: center;
+  height: 168px; display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
 .server-art span {
@@ -200,9 +200,9 @@ section { padding: 5.5rem 2rem; }
   letter-spacing: 5px; position: relative; z-index: 1;
 }
 .art-overlay { position: absolute; inset: 0; }
-.art-rust { background: linear-gradient(135deg,#1a0a00,#3d1800,#1a0a00); color: rgba(255,100,0,0.35); }
-.art-cs2  { background: linear-gradient(135deg,#000a1a,#001840,#000a1a); color: rgba(0,130,255,0.35); }
-.art-mc   { background: linear-gradient(135deg,#0a1800,#1a3800,#0a1800); color: rgba(0,210,80,0.3); }
+.art-rust { background: #0A0A0F url('img/rust-banner-wide.png') center/cover no-repeat; }
+.art-cs2  { background: #0A0A0F url('img/cs2-banner.png') center/cover no-repeat; }
+.art-mc   { background: #0A0A0F url('img/mc-banner.png') center/cover no-repeat; }
 
 .server-body { padding: 1.25rem; }
 .server-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; }
@@ -417,3 +417,30 @@ footer { background: var(--surface); border-top: 1px solid var(--border); paddin
   opacity: 0; pointer-events: none; transition: opacity 0.25s;
 }
 .toast.show { opacity: 1; }
+
+/* ── 2026-09 additions ─────────────────────────────────────── */
+.server-details li strong { color: var(--text); }
+.server-details code { font-size: 0.85em; background: rgba(255,255,255,0.06); padding: 0 0.3em; }
+.server-hint { margin-top: 0.8rem; font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.server-hint code { font-size: 0.9em; color: var(--blue); }
+.pack-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; align-items: start; }
+@media (max-width: 800px) { .pack-grid { grid-template-columns: 1fr; } }
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 0 0 1rem; }
+.steps li { position: relative; padding: 0.6rem 0 0.6rem 2.6rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+.steps li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: 0; top: 0.7rem; width: 1.7rem; height: 1.7rem;
+  display: grid; place-items: center; background: var(--red); color: #fff;
+  font-family: var(--head); font-weight: 700; font-size: 0.9rem;
+}
+.steps code { color: var(--blue); font-size: 0.9em; }
+.pack-facts { background: var(--bg); border: 1px solid var(--border); }
+.fact { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.fact:last-child { border-bottom: 0; }
+.fact-label { color: var(--muted); font-family: var(--mono); font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; }
+.fact-val { color: var(--text); text-align: right; }
+.invite-box { margin-top: 2rem; padding: 1.4rem 1.6rem; border: 1px solid var(--red-dim); background: rgba(229,0,31,0.06); }
+.invite-box h3 { font-family: var(--head); font-size: 1.25rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem; }
+.invite-box p { font-size: 0.93rem; color: var(--text); }
+.invite-box a { color: var(--blue); }
+.section-sub a { color: var(--blue); }
