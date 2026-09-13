@@ -121,7 +121,8 @@ function closeMenu() { const n = document.getElementById('nav-links'); if (n) n.
 document.querySelectorAll('[data-close-menu]').forEach(el => el.addEventListener('click', closeMenu));
 
 // ── Keyboard: number keys jump to sections, any key scrolls past the hero ──
-const KEYMAP = { '1': '#servers', '2': '#minecraft', '3': '/leaderboard', '4': '#events', '5': '/status', '6': '#community', 'Enter': '#community' };
+const DISCORD = 'https://discord.gg/Hp8sRPVgkP';
+const KEYMAP = { '1': '#servers', '2': '#minecraft', '3': '/leaderboard', '4': '#events', '5': '/status', '6': '#community', 'Enter': DISCORD };
 function isTyping() { const t = document.activeElement; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
 document.addEventListener('keydown', e => {
   if (isTyping() || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -147,18 +148,19 @@ function closeTerm() { if (term) term.hidden = true; }
 function tprint(html) { const d = document.createElement('div'); d.innerHTML = html; termOut.appendChild(d); termOut.scrollTop = termOut.scrollHeight; }
 const CONNECT = { rust: 'client.connect rust.superfucked.xyz:28015', cs2: 'connect cs2.superfucked.xyz', minecraft: 'superfucked.xyz', mc: 'superfucked.xyz' };
 const COMMANDS = {
-  help: () => tprint('commands: <b>status</b> · <b>connect rust|cs2|mc</b> · <b>wipe</b> · <b>rank</b> · <b>pack</b> · <b>invite</b> · <b>clear</b> · <b>exit</b>'),
+  help: () => tprint('commands: <b>status</b> · <b>connect rust|cs2|mc</b> · <b>wipe</b> · <b>rank</b> · <b>pack</b> · <b>discord</b> · <b>clear</b> · <b>exit</b>'),
   status: () => { const s = window.__status; if (!s) return tprint('status not loaded yet'); ['rust', 'cs2', 'mc'].forEach(k => tprint(`${k.padEnd(9, '.')} ${s[k].online ? 'ONLINE ' : 'OFFLINE'} ${s[k].players ?? 0}/${s[k].max}${s[k].map ? ' · ' + s[k].map : ''}`)); },
   connect: (arg) => { const v = CONNECT[(arg || '').toLowerCase()]; if (!v) return tprint('usage: connect rust | cs2 | mc'); copyText(v).then(() => tprint(`copied: <b>${v}</b>`)).catch(() => tprint(`connect string: <b>${v}</b>`)); },
   wipe: () => { const t = nextWipe(); if (!t) return; const ms = t.getTime() - Date.now(); tprint(`next rust wipe in <b>${Math.floor(ms / 86400000)}d ${Math.floor(ms % 86400000 / 3600000)}h ${Math.floor(ms % 3600000 / 60000)}m</b> (${t.toLocaleString()})`); },
   rank: () => { location.href = '/leaderboard'; },
   pack: () => { closeTerm(); document.getElementById('minecraft')?.scrollIntoView({ behavior: 'smooth' }); },
-  invite: () => { closeTerm(); document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' }); },
+  discord: () => { tprint(`joining <b>discord.gg/Hp8sRPVgkP</b> …`); window.open(DISCORD, '_blank', 'noopener'); },
+  invite: () => COMMANDS.discord(),
   clear: () => { termOut.innerHTML = ''; },
   exit: () => closeTerm(),
   sudo: () => tprint('permission denied. no mercy.'),
   ls: () => tprint('1.1 rust  1.2 cs2  1.3 minecraft'),
-  whoami: () => tprint('guest. get an invite.'),
+  whoami: () => tprint('guest. type <b>discord</b>.'),
 };
 if (termForm) {
   termForm.addEventListener('submit', e => {
