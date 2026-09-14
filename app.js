@@ -1,6 +1,6 @@
 // KILLSWITCH.GG — site script (Error-Screen Blue identity)
 const STATUS_API = 'https://status.superfucked.xyz/api/status';
-const SLOTS = { rust: 69, cs2: 16, mc: 20 };
+const SLOTS = { rust: 69, cs2: 16, surf: 32, mc: 20 };
 
 // ── Wipe countdown: Thursday 16:00 America/Chicago ────────────────────────
 function chicagoOffsetMinutes(date) {
@@ -65,25 +65,29 @@ function badge(id, online) { const el = document.getElementById(id); if (!el) re
 function dot(id, online) { const el = document.getElementById(id); if (el) el.className = 's-dot ' + (online ? 'online' : 'offline'); }
 function text(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
 function applyStatus(data) {
-  const rust = data.rust || {}, cs2 = data.cs2 || {}, mc = data.minecraft_blockhead || {};
-  const rustMax = rust.max_players || SLOTS.rust, cs2Max = cs2.max_players || SLOTS.cs2, mcMax = mc.max_players || SLOTS.mc;
+  const rust = data.rust || {}, cs2 = data.cs2 || {}, surf = data.cs2_surf || {}, mc = data.minecraft_blockhead || {};
+  const rustMax = rust.max_players || SLOTS.rust, cs2Max = cs2.max_players || SLOTS.cs2, surfMax = surf.max_players || SLOTS.surf, mcMax = mc.max_players || SLOTS.mc;
   text('hw-rust', `${rust.players ?? 0} / ${rustMax}`); dot('hw-rust-dot', !!rust.online);
   text('hw-cs2', `${cs2.players ?? 0} / ${cs2Max}`); dot('hw-cs2-dot', !!cs2.online);
   text('hw-mc', `${mc.players ?? 0} / ${mcMax}`); dot('hw-mc-dot', !!mc.online);
+  text('hw-surf', `${surf.players ?? 0} / ${surfMax}`); dot('hw-surf-dot', !!surf.online);
   badge('rust-badge', !!rust.online); text('rust-players', `${rust.players ?? 0} / ${rustMax} players`);
   badge('cs2-badge', !!cs2.online); text('cs2-players', `${cs2.players ?? 0} / ${cs2Max} players`);
   badge('mc-badge', !!mc.online); text('mc-players', `${mc.players ?? 0} / ${mcMax} players`);
+  badge('surf-badge', !!surf.online); text('surf-players', `${surf.players ?? 0} / ${surfMax} players`);
   badge('st-rust-badge', !!rust.online); text('st-rust-players', `${rust.players ?? 0} / ${rustMax}`);
   badge('st-cs2-badge', !!cs2.online); text('st-cs2-players', `${cs2.players ?? 0} / ${cs2Max}`);
   badge('st-mc-badge', !!mc.online); text('st-mc-players', `${mc.players ?? 0} / ${mcMax}`);
+  badge('st-surf-badge', !!surf.online); text('st-surf-players', `${surf.players ?? 0} / ${surfMax}`);
   if (rust.map) text('st-rust-event', `${rust.map} · wipes Thu 16:00 CT`);
   if (cs2.map) text('st-cs2-event', `now playing ${cs2.map}`);
+  if (surf.map) text('st-surf-event', `now playing ${surf.map}`);
   text('last-updated', `last updated ${new Date().toLocaleTimeString()}`);
   // live boot lines + tab title
   const b = (id, name, s, max) => { const el = document.getElementById(id); if (!el) return; const dots = '.'.repeat(Math.max(2, 14 - name.length)); el.innerHTML = `&gt; ${name} ${dots} ${s.online ? `ok (${s.players ?? 0}/${max})` : 'down'}`; };
-  b('boot-rust', 'rust', rust, rustMax); b('boot-cs2', 'cs2', cs2, cs2Max); b('boot-mc', 'minecraft', mc, mcMax);
-  window.__status = { rust: { ...rust, max: rustMax }, cs2: { ...cs2, max: cs2Max }, mc: { ...mc, max: mcMax } };
-  document.title = `KILLSWITCH.GG · ${rust.players ?? 0}/${rustMax} · ${cs2.players ?? 0}/${cs2Max} · ${mc.players ?? 0}/${mcMax}`;
+  b('boot-rust', 'rust', rust, rustMax); b('boot-cs2', 'cs2', cs2, cs2Max); b('boot-mc', 'minecraft', mc, mcMax); b('boot-surf', 'surf', surf, surfMax);
+  window.__status = { rust: { ...rust, max: rustMax }, cs2: { ...cs2, max: cs2Max }, surf: { ...surf, max: surfMax }, mc: { ...mc, max: mcMax } };
+  document.title = `KILLSWITCH.GG · ${rust.players ?? 0}/${rustMax} · ${cs2.players ?? 0}/${cs2Max} · ${surf.players ?? 0}/${surfMax} · ${mc.players ?? 0}/${mcMax}`;
 }
 async function fetchStatus() {
   try { const r = await fetch(STATUS_API, { cache: 'no-store' }); if (!r.ok) throw new Error(r.status); applyStatus(await r.json()); }
@@ -149,11 +153,11 @@ const term = document.getElementById('term'), termOut = document.getElementById(
 function openTerm() { if (!term) return; term.hidden = false; termIn.focus(); }
 function closeTerm() { if (term) term.hidden = true; }
 function tprint(html) { const d = document.createElement('div'); d.innerHTML = html; termOut.appendChild(d); termOut.scrollTop = termOut.scrollHeight; }
-const CONNECT = { rust: 'client.connect rust.superfucked.xyz:28015', cs2: 'connect cs2.superfucked.xyz', minecraft: 'superfucked.xyz', mc: 'superfucked.xyz' };
+const CONNECT = { rust: 'client.connect rust.superfucked.xyz:28015', cs2: 'connect cs2.superfucked.xyz', surf: 'connect surf.superfucked.xyz:27016', minecraft: 'superfucked.xyz', mc: 'superfucked.xyz' };
 const COMMANDS = {
-  help: () => tprint('commands: <b>status</b> · <b>connect rust|cs2|mc</b> · <b>wipe</b> · <b>rank</b> · <b>pack</b> · <b>discord</b> · <b>clear</b> · <b>exit</b>'),
-  status: () => { const s = window.__status; if (!s) return tprint('status not loaded yet'); ['rust', 'cs2', 'mc'].forEach(k => tprint(`${k.padEnd(9, '.')} ${s[k].online ? 'ONLINE ' : 'OFFLINE'} ${s[k].players ?? 0}/${s[k].max}${s[k].map ? ' · ' + s[k].map : ''}`)); },
-  connect: (arg) => { const v = CONNECT[(arg || '').toLowerCase()]; if (!v) return tprint('usage: connect rust | cs2 | mc'); copyText(v).then(() => tprint(`copied: <b>${v}</b>`)).catch(() => tprint(`connect string: <b>${v}</b>`)); },
+  help: () => tprint('commands: <b>status</b> · <b>connect rust|cs2|surf|mc</b> · <b>wipe</b> · <b>rank</b> · <b>pack</b> · <b>discord</b> · <b>clear</b> · <b>exit</b>'),
+  status: () => { const s = window.__status; if (!s) return tprint('status not loaded yet'); ['rust', 'cs2', 'surf', 'mc'].forEach(k => tprint(`${k.padEnd(9, '.')} ${s[k].online ? 'ONLINE ' : 'OFFLINE'} ${s[k].players ?? 0}/${s[k].max}${s[k].map ? ' · ' + s[k].map : ''}`)); },
+  connect: (arg) => { const v = CONNECT[(arg || '').toLowerCase()]; if (!v) return tprint('usage: connect rust | cs2 | surf | mc'); copyText(v).then(() => tprint(`copied: <b>${v}</b>`)).catch(() => tprint(`connect string: <b>${v}</b>`)); },
   wipe: () => { const t = nextWipe(); if (!t) return; const ms = t.getTime() - Date.now(); tprint(`next rust wipe in <b>${Math.floor(ms / 86400000)}d ${Math.floor(ms % 86400000 / 3600000)}h ${Math.floor(ms % 3600000 / 60000)}m</b> (${t.toLocaleString()})`); },
   rank: () => { location.href = '/leaderboard'; },
   pack: () => { closeTerm(); document.getElementById('minecraft')?.scrollIntoView({ behavior: 'smooth' }); },
@@ -162,7 +166,7 @@ const COMMANDS = {
   clear: () => { termOut.innerHTML = ''; },
   exit: () => closeTerm(),
   sudo: () => tprint('permission denied. no mercy.'),
-  ls: () => tprint('1.1 rust  1.2 cs2  1.3 minecraft'),
+  ls: () => tprint('1.1 rust  1.2 cs2  1.3 minecraft  1.4 surf'),
   whoami: () => tprint('guest. type <b>discord</b>.'),
 };
 if (termForm) {

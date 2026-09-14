@@ -1,5 +1,5 @@
 const API = 'https://status.superfucked.xyz/api/status';
-const SLOTS = { rust: 69, cs2: 16, mc: 20 };
+const SLOTS = { rust: 69, cs2: 16, surf: 32, mc: 20 };
 const $ = id => document.getElementById(id);
 function fmtUptime(sec) {
   if (sec == null) return '—';
@@ -20,9 +20,10 @@ async function load() {
   try {
     const r = await fetch(API, { cache: 'no-store' }); if (!r.ok) throw new Error(r.status);
     const d = await r.json();
-    paint('rust', d.rust, SLOTS.rust); paint('cs2', d.cs2, SLOTS.cs2); paint('mc', d.minecraft_blockhead, SLOTS.mc);
-    const online = ['rust', 'cs2', 'minecraft_blockhead'].filter(k => d[k] && d[k].online).length;
-    $('updated').textContent = `> ${online}/3 online · updated ${new Date().toLocaleTimeString()}`;
+    paint('rust', d.rust, SLOTS.rust); paint('cs2', d.cs2, SLOTS.cs2); paint('mc', d.minecraft_blockhead, SLOTS.mc); paint('surf', d.cs2_surf, SLOTS.surf);
+    const KEYS = ['rust', 'cs2', 'minecraft_blockhead', 'cs2_surf'];
+    const online = KEYS.filter(k => d[k] && d[k].online).length;
+    $('updated').textContent = `> ${online}/${KEYS.length} online · updated ${new Date().toLocaleTimeString()}`;
   } catch (e) { $('updated').textContent = '> status API unreachable, retrying every 30 s'; }
 }
 load(); setInterval(load, 30000);

@@ -6,7 +6,7 @@
   <title>KILLSWITCH.GG</title>
   <meta name="description" content="Rust weekly wipe. CS2 1v1 arena. Modded Minecraft. Player-run game servers." />
   <meta property="og:title" content="KILLSWITCH.GG" />
-  <meta property="og:description" content="Rust. CS2 1v1. Modded Minecraft. Three servers, one network." />
+  <meta property="og:description" content="Rust. CS2 1v1. CS2 Surf. Modded Minecraft. Four servers, one network." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://killswitch-gg.pages.dev/img/og.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -69,6 +69,7 @@
         <div id="boot-rust">&gt; rust ......... ok</div>
         <div id="boot-cs2">&gt; cs2 .......... ok</div>
         <div id="boot-mc">&gt; minecraft .... ok</div>
+        <div id="boot-surf">&gt; surf ......... ok</div>
         <div>&gt; ready. type <b>/</b> for terminal <span class="cursor"></span></div>
       </div>
     </div>
@@ -87,6 +88,10 @@
           <div class="status-row">
             <span class="s-dot" id="hw-mc-dot"></span><span class="s-name">MINECRAFT</span>
             <span class="s-players" id="hw-mc">— / 20</span><span class="s-addr">superfucked.xyz</span>
+          </div>
+          <div class="status-row">
+            <span class="s-dot" id="hw-surf-dot"></span><span class="s-name">CS2 SURF</span>
+            <span class="s-players" id="hw-surf">— / 32</span><span class="s-addr">surf.superfucked.xyz:27016</span>
           </div>
         </div>
       </div>
@@ -129,6 +134,7 @@
           <div class="server-ip-row">
             <code class="server-ip">rust.superfucked.xyz:28015</code>
             <button class="hold" data-copy="client.connect rust.superfucked.xyz:28015"><span>HOLD TO COPY</span></button>
+            <a class="launch" href="steam://connect/rust.superfucked.xyz:28015" title="Opens in Rust if Steam is running">JOIN</a>
           </div>
           <p class="server-hint">F1 console → <code>client.connect rust.superfucked.xyz:28015</code>. Or search Modded for KILLSWITCH.</p>
         </div>
@@ -149,6 +155,7 @@
           <div class="server-ip-row">
             <code class="server-ip">cs2.superfucked.xyz</code>
             <button class="hold" data-copy="connect cs2.superfucked.xyz"><span>HOLD TO COPY</span></button>
+            <a class="launch" href="steam://connect/cs2.superfucked.xyz:27015" title="Opens in CS2 if Steam is running">JOIN</a>
           </div>
           <p class="server-hint">Console → <code>connect cs2.superfucked.xyz</code>. No port needed.</p>
         </div>
@@ -169,8 +176,30 @@
           <div class="server-ip-row">
             <code class="server-ip">superfucked.xyz</code>
             <button class="hold" data-copy="superfucked.xyz"><span>HOLD TO COPY</span></button>
+            <span class="launch-na" title="Minecraft Java Edition has no steam:// style launch link">add in-game</span>
           </div>
           <p class="server-hint">Install the pack (section 4). Add <code>superfucked.xyz</code> in Multiplayer.</p>
+        </div>
+      </div>
+
+      <div class="server-card">
+        <div class="server-art art-surf" role="img" aria-label="CS2 Surf"></div>
+        <div class="server-body">
+          <div class="server-header"><h3 class="server-title">1.4 CS2 Surf</h3><span class="status-badge" id="surf-badge">CHECKING</span></div>
+          <div class="server-players" id="surf-players">— / 32 players</div>
+          <ul class="server-details">
+            <li><strong>Timed surf.</strong> Every run ranked against the map record.</li>
+            <li>20 maps, tiers 1&ndash;3. Beginner-weighted.</li>
+            <li><code>!r</code> restart. <code>!cp</code>/<code>!tp</code> checkpoints. <code>!top</code> map records.</li>
+            <li><code>!rtv</code> to vote. <code>!nominate</code> to pick the next map.</li>
+            <li>12 styles. No shop, no points to buy. 32 slots.</li>
+          </ul>
+          <div class="server-ip-row">
+            <code class="server-ip">surf.superfucked.xyz:27016</code>
+            <button class="hold" data-copy="connect surf.superfucked.xyz:27016"><span>HOLD TO COPY</span></button>
+            <a class="launch" href="steam://connect/surf.superfucked.xyz:27016" title="Opens in CS2 if Steam is running">JOIN</a>
+          </div>
+          <p class="server-hint">Console &rarr; <code>connect surf.superfucked.xyz:27016</code>. Maps download on join.</p>
         </div>
       </div>
 
@@ -188,7 +217,7 @@
       <div class="feature-card"><div class="feature-num">2.1</div><div class="feature-title">Always on</div><p class="feature-desc">Own hardware. Auto-restart. Watched 24/7.</p></div>
       <div class="feature-card"><div class="feature-num">2.2</div><div class="feature-title">Modded</div><p class="feature-desc">Oxide on Rust. Arena ladder on CS2. 153 mods on Minecraft.</p></div>
       <div class="feature-card"><div class="feature-num">2.3</div><div class="feature-title">Fresh weekly</div><p class="feature-desc">Rust wipes Thursday 16:00 CT. New seed. Blueprints kept.</p></div>
-      <div class="feature-card"><div class="feature-num">2.4</div><div class="feature-title">One Discord</div><p class="feature-desc">All three servers in one place. Wipe pings, downtime, mod requests.</p></div>
+      <div class="feature-card"><div class="feature-num">2.4</div><div class="feature-title">One Discord</div><p class="feature-desc">All four servers in one place. Wipe pings, downtime, mod requests.</p></div>
     </div>
   </div>
 </section>
@@ -221,6 +250,13 @@
         <span id="st-mc-players">—</span>
         <span>superfucked.xyz</span>
         <span class="muted">Hard Boys Pack · NeoForge 26.2</span>
+      </div>
+      <div class="status-table-row">
+        <span><span class="game-tag">SURF</span>Timed surf</span>
+        <span><span class="status-badge" id="st-surf-badge">CHECKING</span></span>
+        <span id="st-surf-players">—</span>
+        <span>surf.superfucked.xyz:27016</span>
+        <span class="muted" id="st-surf-event">20 maps · tiers 1&ndash;3</span>
       </div>
     </div>
   </div>
@@ -302,7 +338,7 @@
     </div>
     <div class="invite-box">
       <h3>Join the Discord</h3>
-      <p>One server for all three games. Wipe pings, downtime notices, the Minecraft pack zip, and whoever is looking for a duo.</p>
+      <p>One server for all four servers. Wipe pings, downtime notices, the Minecraft pack zip, and whoever is looking for a duo.</p>
       <a class="invite-cta" href="https://discord.gg/Hp8sRPVgkP" target="_blank" rel="noopener">[ENTER] discord.gg/Hp8sRPVgkP</a>
       <p class="invite-alt">Trouble with the link? Email <a href="mailto:hello@8dotmedia.com?subject=KILLSWITCH.GG%20Discord%20invite">hello@8dotmedia.com</a>.</p>
     </div>
@@ -318,7 +354,7 @@
         <p class="footer-tagline">An 8dot Media property.</p>
         <div class="footer-socials"><a href="https://discord.gg/Hp8sRPVgkP" target="_blank" rel="noopener">Discord</a><a href="https://8dotmedia.com" target="_blank" rel="noopener">8dotmedia.com</a><a href="https://superfucked.xyz" target="_blank" rel="noopener">superfucked.xyz</a></div>
       </div>
-      <div class="footer-col"><h4>Servers</h4><ul><li><a href="#servers">1.1 Rust</a></li><li><a href="#servers">1.2 CS2 1v1 Arena</a></li><li><a href="#minecraft">1.3 Minecraft · Hard Boys Pack</a></li></ul></div>
+      <div class="footer-col"><h4>Servers</h4><ul><li><a href="#servers">1.1 Rust</a></li><li><a href="#servers">1.2 CS2 1v1 Arena</a></li><li><a href="#minecraft">1.3 Minecraft · Hard Boys Pack</a></li><li><a href="#servers">1.4 CS2 Surf</a></li></ul></div>
       <div class="footer-col"><h4>Pages</h4><ul><li><a href="/leaderboard">Ranking</a></li><li><a href="/status">Status board</a></li><li><a href="#events">Wipe schedule</a></li><li><a href="https://discord.gg/Hp8sRPVgkP" target="_blank" rel="noopener">Join Discord</a></li></ul></div>
       <div class="footer-col"><h4>About</h4><ul><li><a href="https://8dotmedia.com">8dot Media</a></li><li><a href="mailto:hello@8dotmedia.com">Contact</a></li></ul></div>
     </div>

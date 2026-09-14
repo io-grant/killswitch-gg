@@ -21,11 +21,16 @@ for a in style.css app.js img/og.png img/favicon.svg img/apple-touch-icon.png \
   [ "$code" = 200 ] && ok "$a ($type)" || bad "$a ($code)"
 done
 
+# The second grep drops ANY url with a scheme, not just http/mailto. The site ships
+# steam://connect/... launch links; curl-ing those as relative paths returns 404 and
+# reads as a broken internal link when nothing is broken.
 echo "=== 3. internal links resolve ==="
 for page in "" status leaderboard; do
   curl -s -m 20 "$BASE/$page" -o "$TMP/p.html"
   grep -oE 'href="[^"#][^"]*"' "$TMP/p.html" | sed 's/href="//; s/"$//' \
-    | grep -vE '^(https?:|mailto:|//)' | sort -u | while read -r l; do
+    | grep -vE '^(https?:|mailto:|//)' \
+    | grep -vE '^[a-z][a-z0-9+.-]*:' \
+    | sort -u | while read -r l; do
       u="$BASE/${l#/}"
       code=$(curl -sL -o /dev/null -w '%{http_code}' -m 20 "$u")
       [ "$code" = 200 ] && echo "  ok   [/$page] $l" || echo "  FAIL [/$page] $l ($code)"

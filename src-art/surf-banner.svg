@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0000AA"/>
+  <rect x="0" y="0" width="1200" height="64" fill="#FFFFFF"/>
+  <text x="40" y="44" font-family="BricolageKS" font-weight="800" font-size="26" fill="#0000AA" letter-spacing="-1">KILLSWITCH.GG</text>
+  <text x="1160" y="43" font-family="Space Mono" font-weight="700" font-size="18" fill="#0000AA" text-anchor="end">[1.4]</text>
+  <text x="40" y="300" font-family="Space Mono" font-size="20" fill="#CFCFFF">&gt; mounting surf.superfucked.xyz ....... ok</text>
+  <text x="36" y="480" font-family="BricolageKS" font-weight="800" font-size="190" fill="#FFFFFF" letter-spacing="-6">SURF</text>
+  <text x="40" y="534" font-family="Space Mono" font-weight="700" font-size="30" fill="#FFFFFF">TIMED SURF LADDER · 20 MAPS · TIERS 1-3</text>
+  <text x="40" y="578" font-family="Space Mono" font-size="18" fill="#CFCFFF">connect surf.superfucked.xyz:27016</text>
+  <rect x="1154" y="558" width="22" height="34" fill="#FFFFFF"/>
+</svg>
