@@ -140,11 +140,7 @@ code { font-family: var(--mono); }
 .server-details li::before { content: counter(line, decimal-leading-zero); position: absolute; left: 0; color: var(--ink-muted); }
 .server-details strong { font-weight: 700; }
 .server-details code { background: var(--blue); color: var(--white); padding: 0 4px; font-size: 0.9em; }
-/* Address on its own line, controls beneath. Before the JOIN button existed the
-   address just fitted; adding a third element truncated it mid-word ("rust.superf"),
-   which reads as broken rather than as an ellipsis. */
-.server-ip-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; margin-top: auto; }
-.server-ip-row .server-ip { flex: 1 1 100%; }
+.server-ip-row { display: flex; gap: 8px; align-items: stretch; margin-top: auto; }
 .server-ip { flex: 1; border: 1px solid var(--blue); padding: 8px 10px; font-size: 0.8rem; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .server-hint { font-size: 0.74rem; color: var(--ink-muted); margin: 0; }
 .server-hint code { color: var(--blue); }
@@ -162,28 +158,6 @@ code { font-family: var(--mono); }
 .band-blue .hold { border-color: var(--white); background: var(--blue); color: var(--white); }
 .band-blue .hold::before { background: var(--white); }
 .band-blue .hold.done { background: var(--white); color: var(--blue); }
-
-/* Launch control — steam:// deep link, next to hold-to-copy.
-   Same metrics as .hold (44px min target, mono, 2px border) so the pair reads as one
-   unit. Filled by default because it is the primary action; .hold stays outlined. */
-/* NB the selectors below are `a.launch`, not `.launch`, on purpose.
-   `.band-white a { color: var(--blue) }` (line ~72) is specificity (0,1,1); a bare
-   `.launch` is (0,1,0) and LOSES, which paints blue text on a blue button — an
-   invisible label. `a.launch` matches that specificity and wins on source order. */
-a.launch {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  font-family: var(--mono); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
-  border: 2px solid var(--blue); background: var(--blue); color: var(--white);
-  padding: 0 14px; min-height: 44px; cursor: pointer; white-space: nowrap; text-decoration: none;
-  transition: background 0.12s linear, color 0.12s linear;
-}
-a.launch:hover, a.launch:focus-visible { background: var(--white); color: var(--blue); }
-a.launch::before { content: '▶'; font-size: 0.66rem; line-height: 1; }
-.band-blue a.launch { border-color: var(--white); background: var(--white); color: var(--blue); }
-.band-blue a.launch:hover, .band-blue a.launch:focus-visible { background: var(--blue); color: var(--white); }
-/* Games with no protocol handler (Minecraft Java) get a stated reason, never a dead button. */
-.launch-na { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); align-self: center; padding-left: 2px; }
-.band-blue .launch-na { color: var(--dim-2); }
 
 /* ── Minecraft pack ───────────────────────────────────────── */
 .pack-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; align-items: start; }
