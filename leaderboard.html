@@ -122,7 +122,7 @@
 <!-- CS2 -->
 <section class="band band-white" id="view-cs2" hidden style="padding-top: 40px;">
   <div class="container">
-    <p class="sec-num">7.2 · POINTS: +2 KILL · +1 HEADSHOT · +3 KNIFE · −2 DEATH</p>
+    <p class="sec-num">7.2 · POINTS: +13 KILL · +3 HEADSHOT · +3 KNIFE · −8 DEATH</p>
     <div class="lb-stats">
       <div class="lb-stat"><div class="lb-stat-label">ARENA KILLS</div><div class="lb-stat-value" id="c-kills">—</div></div>
       <div class="lb-stat"><div class="lb-stat-label">PLAYERS RANKED</div><div class="lb-stat-value" id="c-players">—</div></div>
@@ -135,9 +135,9 @@
     </div>
     <div id="c-content" hidden>
       <div class="lb-panel"><h2>Top points</h2><p class="panel-sub">Arena points, top 10</p><div class="chart-wrap" id="c-chart-wrap"><svg id="c-chart" role="img" aria-label="Bar chart of top CS2 players by points"></svg></div></div>
-      <div class="lb-panel"><h2>Full ranking</h2><p class="panel-sub">Points, kills, deaths, K/D, time in arena and favorite weapon</p>
-        <div style="overflow-x:auto"><table class="lb-table" id="c-table"><thead><tr><th>#</th><th>PLAYER</th><th class="num">POINTS</th><th class="num">KILLS</th><th class="num">DEATHS</th><th class="num">K/D</th><th class="num">PLAYTIME</th><th>FAVORITE</th></tr></thead><tbody></tbody></table></div></div>
-      <div class="lb-panel"><h2>Weapons</h2><p class="panel-sub">Kills by weapon across the whole arena</p><div class="weapon-list" id="c-weapons"></div></div>
+      <div class="lb-panel"><h2>Full ranking</h2><p class="panel-sub">Rank, points, kills, deaths, K/D, headshot percentage and time in arena</p>
+        <div style="overflow-x:auto"><table class="lb-table" id="c-table"><thead><tr><th>#</th><th>PLAYER</th><th>RANK</th><th class="num">POINTS</th><th class="num">KILLS</th><th class="num">DEATHS</th><th class="num">K/D</th><th class="num">HS%</th><th class="num">PLAYTIME</th></tr></thead><tbody></tbody></table></div></div>
+      <div class="lb-panel" id="c-weapons-panel"><h2>Weapons</h2><p class="panel-sub">Kills by weapon across the whole arena</p><div class="weapon-list" id="c-weapons"></div></div>
     </div>
     <div class="lb-error" id="c-error" hidden>&gt; CS2 ranking API unreachable. Try a refresh.</div>
     <p class="lb-updated" id="c-updated"></p>

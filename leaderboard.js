@@ -30,7 +30,7 @@ function renderChart(svgId, wrapId, rows, valueKey, label) {
   const tt = $('lb-tooltip');
   svg.querySelectorAll('.bar-hit, .bar').forEach(el => {
     el.addEventListener('mousemove', e => { const p = top[+el.dataset.i]; if (!p) return;
-      tt.innerHTML = `<strong>${esc(p.name)}</strong><br/>${p[valueKey]} ${label} <span class="tt-muted">· ${p.kills} K · ${p.deaths} D · ${p.kd} K/D</span>` + (p.top_weapon ? `<br/><span class="tt-muted">favors</span> ${esc(p.top_weapon)}` : '');
+      tt.innerHTML = `<strong>${esc(p.name)}</strong><br/>${p[valueKey]} ${label} <span class="tt-muted">· ${p.kills} K · ${p.deaths} D · ${p.kd} K/D</span>` + (p.rank_name ? `<br/><span class="tt-muted">rank</span> ${esc(p.rank_name)}` : p.top_weapon ? `<br/><span class="tt-muted">favors</span> ${esc(p.top_weapon)}` : '');
       tt.style.display = 'block'; tt.style.left = Math.min(e.clientX + 14, window.innerWidth - tt.offsetWidth - 8) + 'px'; tt.style.top = (e.clientY + 14) + 'px'; });
     el.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
   });
@@ -58,8 +58,10 @@ async function loadCS2() {
     const empty = !d.players.length; $('c-empty').hidden = !empty; $('c-content').hidden = empty;
     if (!empty) {
       renderChart('c-chart', 'c-chart-wrap', d.players, 'points', 'pts');
-      $('c-table').querySelector('tbody').innerHTML = d.players.map((p, i) => `<tr><td class="lb-rank ${i === 0 ? 'top' : ''}">${String(i + 1).padStart(2, '0')}</td><td class="lb-player">${esc(p.name)}</td><td class="num">${p.points}</td><td class="num">${p.kills}</td><td class="num">${p.deaths}</td><td class="num">${(+p.kd).toFixed(2)}</td><td class="num">${fmtPlaytime(p.playtime_seconds)}</td><td class="lb-weapon">${esc(p.top_weapon || '—')}</td></tr>`).join('');
-      $('c-weapons').innerHTML = (d.weapons || []).map(w => `<span>${esc(w.weapon)}<b>${w.kills}</b></span>`).join('');
+      $('c-table').querySelector('tbody').innerHTML = d.players.map((p, i) => `<tr><td class="lb-rank ${i === 0 ? 'top' : ''}">${String(i + 1).padStart(2, '0')}</td><td class="lb-player">${esc(p.name)}</td><td class="lb-tier">${esc(p.rank_name || '—')}</td><td class="num">${p.points}</td><td class="num">${p.kills}</td><td class="num">${p.deaths}</td><td class="num">${(+p.kd).toFixed(2)}</td><td class="num">${(+(p.headshot_pct || 0)).toFixed(1)}</td><td class="num">${fmtPlaytime(p.playtime_seconds)}</td></tr>`).join('');
+      const wl = d.weapons || [];
+      $('c-weapons-panel').hidden = !wl.length;
+      $('c-weapons').innerHTML = wl.map(w => `<span>${esc(w.weapon)}<b>${w.kills}</b></span>`).join('');
     }
     $('c-updated').textContent = `data cached 60s · fetched ${new Date().toLocaleTimeString()}`;
   } catch (e) { $('c-error').hidden = false; $('c-empty').hidden = true; $('c-content').hidden = true; }

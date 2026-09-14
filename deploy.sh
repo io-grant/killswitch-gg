@@ -15,8 +15,11 @@ DOMAIN="${SITE_DOMAIN:-$DEFAULT}"
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 
+# Editor and backup junk must never ship: a stray index.html.bak-<ts> is a public page.
 tar --exclude='./.git' --exclude='./.gitignore' --exclude='./deploy.sh' \
     --exclude='./src-art' --exclude='./README.md' --exclude='./qa.sh' \
+    --exclude='*.bak' --exclude='*.bak-*' --exclude='*.orig' --exclude='*.rej' \
+    --exclude='*~' --exclude='.*.swp' \
     -cf - . | (cd "$OUT" && tar xf -)
 
 if [ "$DOMAIN" != "$DEFAULT" ]; then
