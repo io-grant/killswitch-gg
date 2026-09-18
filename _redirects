@@ -10,3 +10,6 @@
 /map               /#events        302
 /rank              /leaderboard    302
 /surf              /leaderboard#surf                 302
+/appeal.html       /appeal                           301
+/appeals           /appeal                           301
+/ban-appeal        /appeal                           301

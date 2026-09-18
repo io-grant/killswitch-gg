@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ban appeal — KILLSWITCH.GG</title>
+  <meta name="description" content="Appeal a ban from the KILLSWITCH.GG game servers. Tell us who you were, what happened, and why it should be lifted." />
+  <meta property="og:title" content="KILLSWITCH.GG — Ban appeal" />
+  <meta property="og:description" content="Appeal a ban from the KILLSWITCH.GG game servers." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://killswitch-gg.pages.dev/img/og.png" />
+  <meta name="theme-color" content="#0000AA" />
+  <link rel="icon" href="favicon.ico" sizes="32x32" />
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .ap-wrap { max-width: 720px; }
+    .ap-form { border: 2px solid var(--blue); padding: 24px; margin-top: 24px; }
+    .ap-field { margin-bottom: 20px; }
+    .ap-field label { display: block; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .ap-field .hint { display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--ink-muted); margin-bottom: 8px; text-transform: none; letter-spacing: 0; }
+    .ap-field input, .ap-field select, .ap-field textarea {
+      width: 100%; box-sizing: border-box; font-family: var(--mono); font-size: 0.88rem;
+      padding: 11px 12px; border: 2px solid var(--blue); background: var(--white); color: var(--blue); border-radius: 0;
+    }
+    .ap-field textarea { min-height: 150px; resize: vertical; }
+    .ap-field input:focus, .ap-field select:focus, .ap-field textarea:focus { outline: 3px solid var(--blue); outline-offset: 2px; }
+    .ap-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .ap-submit { font-family: var(--mono); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.06em; padding: 14px 26px; background: var(--blue); color: var(--white); border: 2px solid var(--blue); cursor: pointer; text-transform: uppercase; }
+    .ap-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .ap-msg { margin-top: 18px; font-family: var(--mono); font-size: 0.84rem; padding: 14px; border: 2px solid var(--blue); }
+    .ap-msg.err { border-color: #AA0000; color: #AA0000; }
+    .ap-note { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-muted); line-height: 1.7; }
+  </style>
+</head>
+<body>
+<a class="skip" href="#nav">Skip to content</a>
+
+<nav id="nav">
+  <a href="/" class="nav-logo">Killswitch<span>.gg</span></a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">[=]</button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="/#servers" data-key="1">Servers</a></li>
+    <li><a href="/#minecraft" data-key="2">Minecraft pack</a></li>
+    <li><a href="/leaderboard" data-key="3">Ranking</a></li>
+    <li><a href="/#events" data-key="4">Wipes</a></li>
+    <li><a href="/status" data-key="5">Status</a></li>
+    <li><a href="/#community" data-key="6">Discord</a></li>
+  </ul>
+  <a href="https://discord.gg/Hp8sRPVgkP" class="btn-join" target="_blank" rel="noopener">[ENTER] Join Discord</a>
+</nav>
+
+<section class="band band-white">
+  <div class="container ap-wrap">
+    <p class="sec-num">APPEAL</p>
+    <h2 class="sec-title">Ban appeal</h2>
+    <p class="sec-sub">You cannot appeal in the Discord, because a ban removes you from it. So it happens here.</p>
+
+    <p class="ap-note">
+      It goes straight to the staff channel. One person reads these, so give a real account of what
+      happened — a short honest one does better than a long innocent one. If you were banned for
+      cheating and you were cheating, say so; people do get unbanned for that.
+    </p>
+
+    <form class="ap-form" id="ap-form" novalidate>
+      <div class="ap-field">
+        <label for="handle">Name you played under *</label>
+        <span class="hint">The name staff would have seen in chat or the kill feed.</span>
+        <input id="handle" name="handle" maxlength="80" required autocomplete="off" />
+      </div>
+      <div class="ap-field">
+        <label for="steamid">SteamID or Minecraft username</label>
+        <span class="hint">Optional, but it makes you far easier to find.</span>
+        <input id="steamid" name="steamid" maxlength="64" autocomplete="off" />
+      </div>
+      <div class="ap-field">
+        <label for="server">Which server</label>
+        <select id="server" name="server">
+          <option value="">— pick one —</option>
+          <option>Rust</option><option>CS2 1v1</option><option>CS2 Surf</option>
+          <option>Minecraft</option><option>Not sure</option>
+        </select>
+      </div>
+      <div class="ap-field">
+        <label for="reason">What you were banned for</label>
+        <span class="hint">As you understand it. "No idea" is a valid answer.</span>
+        <textarea id="reason" name="reason" maxlength="600" style="min-height:90px"></textarea>
+      </div>
+      <div class="ap-field">
+        <label for="appeal">Why it should be lifted *</label>
+        <span class="hint">At least a couple of sentences.</span>
+        <textarea id="appeal" name="appeal" maxlength="2000" required></textarea>
+      </div>
+      <div class="ap-hp" aria-hidden="true">
+        <label for="website">Leave this empty</label>
+        <input id="website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+      <button class="ap-submit" id="ap-submit" type="submit">Send appeal</button>
+      <div class="ap-msg" id="ap-msg" hidden></div>
+    </form>
+
+    <p class="ap-note" style="margin-top:22px">
+      No reply address is collected. Check back in the Discord once the ban is lifted —
+      <a href="https://discord.gg/Hp8sRPVgkP" target="_blank" rel="noopener">discord.gg/Hp8sRPVgkP</a>.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>KILLSWITCH.GG — one person, one rack.</p>
+  </div>
+</footer>
+
+<script>
+const f = document.getElementById('ap-form');
+const btn = document.getElementById('ap-submit');
+const msg = document.getElementById('ap-msg');
+function say(text, isErr) {
+  msg.textContent = text; msg.className = 'ap-msg' + (isErr ? ' err' : ''); msg.hidden = false;
+}
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(f));
+  if (!data.handle || !data.handle.trim()) return say('> we need the name you played under.', true);
+  if ((data.appeal || '').trim().length < 30) return say('> give us at least a couple of sentences.', true);
+  btn.disabled = true; say('> sending...', false);
+  try {
+    const r = await fetch('/api/appeal', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) {
+      f.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+      say('> appeal sent. Staff will see it in Discord. There is no reply here — check the server.', false);
+    } else {
+      say('> ' + (d.error || 'could not send that. Try again shortly.'), true);
+      btn.disabled = false;
+    }
+  } catch {
+    say('> network error. Try again shortly.', true); btn.disabled = false;
+  }
+});
+</script>
+<script src="app.js" defer></script>
+</body>
+</html>
