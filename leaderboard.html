@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     .lb-hero { padding: 56px 0 28px; }
-    .lb-tabs { display: flex; gap: 0; border: 2px solid var(--white); width: fit-content; margin-top: 8px; }
+    .lb-tabs { display: flex; flex-wrap: wrap; gap: 0; border: 2px solid var(--white); width: fit-content; max-width: 100%; margin-top: 8px; }
     .lb-tab { font-family: var(--mono); font-size: 0.8rem; font-weight: 700; padding: 12px 18px; background: var(--blue); color: var(--white); border: 0; border-right: 2px solid var(--white); cursor: pointer; text-align: left; }
     .lb-tab:last-child { border-right: 0; }
     .lb-tab.active { background: var(--white); color: var(--blue); }
@@ -90,6 +90,7 @@
     <div class="lb-tabs" role="tablist">
       <button class="lb-tab active" id="tab-rust" role="tab" data-tab="rust">[R] RUST<small>kills · current wipe</small></button>
       <button class="lb-tab" id="tab-cs2" role="tab" data-tab="cs2">[C] CS2 1v1 ARENA<small>points · all-time</small></button>
+      <button class="lb-tab" id="tab-surf" role="tab" data-tab="surf">[S] CS2 SURF<small>points · all-time</small></button>
     </div>
   </div>
 </section>
@@ -141,6 +142,33 @@
     </div>
     <div class="lb-error" id="c-error" hidden>&gt; CS2 ranking API unreachable. Try a refresh.</div>
     <p class="lb-updated" id="c-updated"></p>
+  </div>
+</section>
+
+<!-- CS2 SURF -->
+<section class="band band-white" id="view-surf" hidden style="padding-top: 40px;">
+  <div class="container">
+    <p class="sec-num">7.3 · POINTS SCALE WITH MAP TIER · RECORDS ARE STANDARD STYLE</p>
+    <div class="lb-stats">
+      <div class="lb-stat"><div class="lb-stat-label">MAPS CLAIMED</div><div class="lb-stat-value" id="s-maps">&mdash;</div></div>
+      <div class="lb-stat"><div class="lb-stat-label">PLAYERS RANKED</div><div class="lb-stat-value" id="s-players">&mdash;</div></div>
+      <div class="lb-stat"><div class="lb-stat-label">#1 RIGHT NOW</div><div class="lb-stat-value small" id="s-top">&mdash;</div></div>
+      <div class="lb-stat"><div class="lb-stat-label">LAST RUN</div><div class="lb-stat-value small" id="s-last">&mdash;</div></div>
+    </div>
+    <div class="lb-empty" id="s-empty" hidden>
+      <h3>No completed runs yet</h3>
+      <p>Every map record is unclaimed. Finish one and it is yours.</p>
+    </div>
+    <div id="s-content" hidden>
+      <div class="lb-panel"><h2>Top points</h2><p class="panel-sub">Points across every map, top 10</p><div class="chart-wrap" id="s-chart-wrap"><svg id="s-chart" role="img" aria-label="Bar chart of top surf players by points"></svg></div></div>
+      <div class="lb-panel"><h2>Map records</h2><p class="panel-sub">The fastest completion on every map anyone has finished</p>
+        <div style="overflow-x:auto"><table class="lb-table" id="s-records"><thead><tr><th>MAP</th><th class="num">TIME</th><th>HOLDER</th><th class="num">FINISHES</th><th class="num">SET</th></tr></thead><tbody></tbody></table></div></div>
+      <div class="lb-panel"><h2>Full ranking</h2><p class="panel-sub">Rank, points, maps completed and total finishes</p>
+        <div style="overflow-x:auto"><table class="lb-table" id="s-table"><thead><tr><th>#</th><th>PLAYER</th><th>RANK</th><th class="num">POINTS</th><th class="num">MAPS</th><th class="num">FINISHES</th><th class="num">LAST RUN</th></tr></thead><tbody></tbody></table></div></div>
+      <div class="lb-panel"><h2>Recent runs</h2><p class="panel-sub">Latest completions on the surf server</p><div id="s-recent"></div></div>
+    </div>
+    <div class="lb-error" id="s-error" hidden>&gt; surf ranking API unreachable. Try a refresh.</div>
+    <p class="lb-updated" id="s-updated"></p>
   </div>
 </section>
 

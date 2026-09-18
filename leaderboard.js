@@ -1,15 +1,16 @@
 const RUST_API = 'https://status.superfucked.xyz/api/leaderboard';
 const CS2_API  = 'https://status.superfucked.xyz/api/cs2/leaderboard';
+const SURF_API = 'https://status.superfucked.xyz/api/surf/leaderboard';
 const REFRESH_MS = 60000;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function timeAgo(ts) { if (!ts) return '—'; const s = Math.max(0, Math.floor(Date.now() / 1000 - ts)); if (s < 60) return `${s}s ago`; if (s < 3600) return `${Math.floor(s / 60)}m ago`; if (s < 86400) return `${Math.floor(s / 3600)}h ago`; return `${Math.floor(s / 86400)}d ago`; }
 function fmtPlaytime(sec) { if (!sec) return '—'; const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60); return h ? `${h}h ${m}m` : `${m}m`; }
 function showTab(name) {
-  ['rust', 'cs2'].forEach(t => { $('view-' + t).hidden = t !== name; $('tab-' + t).classList.toggle('active', t === name); $('tab-' + t).setAttribute('aria-selected', t === name); });
+  ['rust', 'cs2', 'surf'].forEach(t => { $('view-' + t).hidden = t !== name; $('tab-' + t).classList.toggle('active', t === name); $('tab-' + t).setAttribute('aria-selected', t === name); });
   if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
 }
-function renderChart(svgId, wrapId, rows, valueKey, label) {
+function renderChart(svgId, wrapId, rows, valueKey, label, tipFn) {
   const top = rows.slice(0, 10), svg = $(svgId);
   const wrapW = Math.max(560, ($(wrapId).clientWidth || 640));
   const nameW = 150, valW = 64, padT = 6, rowH = 34, barH = 20, W = wrapW, H = padT + top.length * rowH + 4, plotW = W - nameW - valW;
@@ -30,12 +31,12 @@ function renderChart(svgId, wrapId, rows, valueKey, label) {
   const tt = $('lb-tooltip');
   svg.querySelectorAll('.bar-hit, .bar').forEach(el => {
     el.addEventListener('mousemove', e => { const p = top[+el.dataset.i]; if (!p) return;
-      tt.innerHTML = `<strong>${esc(p.name)}</strong><br/>${p[valueKey]} ${label} <span class="tt-muted">· ${p.kills} K · ${p.deaths} D · ${p.kd} K/D</span>` + (p.rank_name ? `<br/><span class="tt-muted">rank</span> ${esc(p.rank_name)}` : p.top_weapon ? `<br/><span class="tt-muted">favors</span> ${esc(p.top_weapon)}` : '');
+      tt.innerHTML = tipFn ? tipFn(p) : `<strong>${esc(p.name)}</strong><br/>${p[valueKey]} ${label} <span class="tt-muted">· ${p.kills} K · ${p.deaths} D · ${p.kd} K/D</span>` + (p.rank_name ? `<br/><span class="tt-muted">rank</span> ${esc(p.rank_name)}` : p.top_weapon ? `<br/><span class="tt-muted">favors</span> ${esc(p.top_weapon)}` : '');
       tt.style.display = 'block'; tt.style.left = Math.min(e.clientX + 14, window.innerWidth - tt.offsetWidth - 8) + 'px'; tt.style.top = (e.clientY + 14) + 'px'; });
     el.addEventListener('mouseleave', () => { tt.style.display = 'none'; });
   });
 }
-let rustData = null, cs2Data = null;
+let rustData = null, cs2Data = null, surfData = null;
 async function loadRust() {
   try {
     const r = await fetch(RUST_API, { cache: 'no-store' }); const d = await r.json(); if (d.error) throw new Error(d.error);
@@ -66,8 +67,30 @@ async function loadCS2() {
     $('c-updated').textContent = `data cached 60s · fetched ${new Date().toLocaleTimeString()}`;
   } catch (e) { $('c-error').hidden = false; $('c-empty').hidden = true; $('c-content').hidden = true; }
 }
+const surfTip = p => `<strong>${esc(p.name)}</strong><br/>${p.points} pts <span class="tt-muted">· ${p.maps_completed} map${p.maps_completed === 1 ? '' : 's'} · ${p.total_finishes} finish${p.total_finishes === 1 ? '' : 'es'}</span>` + (p.rank_name ? `<br/><span class="tt-muted">rank</span> ${esc(p.rank_name)}` : '');
+async function loadSurf() {
+  try {
+    const r = await fetch(SURF_API, { cache: 'no-store' }); const d = await r.json(); if (d.error) throw new Error(d.error);
+    surfData = d; $('s-error').hidden = true;
+    $('s-maps').textContent = d.maps_claimed; $('s-players').textContent = d.ranked_count;
+    const ranked = d.players.filter(p => p.points > 0);
+    $('s-top').textContent = ranked[0] ? ranked[0].name : '—'; $('s-last').textContent = timeAgo(d.last_finish_at);
+    // A player who has connected but never finished a map is not "on the board":
+    // the board is empty until somebody completes a run, not until somebody joins.
+    const empty = !ranked.length && !d.records.length;
+    $('s-empty').hidden = !empty; $('s-content').hidden = empty;
+    if (!empty) {
+      if (ranked.length) renderChart('s-chart', 's-chart-wrap', ranked, 'points', 'pts', surfTip);
+      $('s-chart-wrap').hidden = !ranked.length;
+      $('s-records').querySelector('tbody').innerHTML = d.records.map(r => `<tr><td class="lb-player">${esc(r.map)}</td><td class="num">${esc(r.time)}</td><td class="lb-player">${esc(r.player)}</td><td class="num">${r.finishes}</td><td class="num">${timeAgo(r.set_at)}</td></tr>`).join('');
+      $('s-table').querySelector('tbody').innerHTML = d.players.map((p, i) => `<tr><td class="lb-rank ${i === 0 && p.points > 0 ? 'top' : ''}">${p.placement ? String(p.placement).padStart(2, '0') : '—'}</td><td class="lb-player">${esc(p.name)}</td><td class="lb-tier">${esc(p.rank_name)}</td><td class="num">${p.points}</td><td class="num">${p.maps_completed}</td><td class="num">${p.total_finishes}</td><td class="num">${timeAgo(p.last_finish_at)}</td></tr>`).join('');
+      $('s-recent').innerHTML = (d.recent || []).map(k => `<div class="kill-row"><span class="kill-killer">${esc(k.player)}</span><span>&gt;</span><span class="kill-victim">${esc(k.map)}</span><span class="lb-weapon">[${esc(k.time)}]</span><span class="kill-time">${timeAgo(k.at)}</span></div>`).join('');
+    }
+    $('s-updated').textContent = `data cached 60s · fetched ${new Date().toLocaleTimeString()}`;
+  } catch (e) { $('s-error').hidden = false; $('s-empty').hidden = true; $('s-content').hidden = true; }
+}
 document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
-showTab(location.hash === '#cs2' ? 'cs2' : 'rust');
-loadRust(); loadCS2();
-setInterval(() => { loadRust(); loadCS2(); }, REFRESH_MS);
-window.addEventListener('resize', () => { if (rustData && rustData.players.length) renderChart('r-chart', 'r-chart-wrap', rustData.players, 'kills', 'kills'); if (cs2Data && cs2Data.players.length) renderChart('c-chart', 'c-chart-wrap', cs2Data.players, 'points', 'pts'); });
+showTab(['#cs2', '#surf'].includes(location.hash) ? location.hash.slice(1) : 'rust');
+loadRust(); loadCS2(); loadSurf();
+setInterval(() => { loadRust(); loadCS2(); loadSurf(); }, REFRESH_MS);
+window.addEventListener('resize', () => { if (rustData && rustData.players.length) renderChart('r-chart', 'r-chart-wrap', rustData.players, 'kills', 'kills'); if (cs2Data && cs2Data.players.length) renderChart('c-chart', 'c-chart-wrap', cs2Data.players, 'points', 'pts'); const sr = surfData ? surfData.players.filter(p => p.points > 0) : []; if (sr.length) renderChart('s-chart', 's-chart-wrap', sr, 'points', 'pts', surfTip); });

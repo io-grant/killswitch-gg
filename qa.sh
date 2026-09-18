@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # KILLSWITCH.GG site QA sweep
 BASE="${1:-https://killswitch-gg.pages.dev}"
-TMP=/tmp/claude-1000/-home-grant/f29570cb-c2b7-47cf-b8f0-a356579394e8/scratchpad/qa
-mkdir -p "$TMP"; rm -rf "$TMP"/*; PASS=0; FAIL=0
+# A private temp dir per run. This was a hardcoded path under one session's
+# scratchpad, which meant a run as root left 0700 root-owned chromium profiles
+# behind that no later run could clear - every render then wrote an empty file
+# and the DOM checks all "failed" while the site was perfectly fine.
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+PASS=0; FAIL=0
 ok(){ printf '  ok   %s\n' "$1"; PASS=$((PASS+1)); }
 bad(){ printf '  FAIL %s\n' "$1"; FAIL=$((FAIL+1)); }
 
@@ -45,7 +50,7 @@ grep -oE 'https?://[^"]+' "$TMP/home.html" | grep -vE 'killswitch-gg|fonts\.(goo
 done
 
 echo "=== 5. APIs ==="
-for ep in api/status api/leaderboard api/cs2/leaderboard api/map health; do
+for ep in api/status api/leaderboard api/cs2/leaderboard api/surf/leaderboard api/map health; do
   code=$(curl -s -o "$TMP/api.json" -w '%{http_code}' -m 25 "https://status.superfucked.xyz/$ep")
   cors=$(curl -sI -m 15 "https://status.superfucked.xyz/$ep" | grep -ci 'access-control-allow-origin' || true)
   if [ "$code" = 200 ]; then ok "$ep (200, CORS hdr: $cors)"; else bad "$ep ($code)"; fi
@@ -53,24 +58,36 @@ done
 python3 - "$TMP" <<'PY'
 import json, sys, urllib.request
 base = "https://status.superfucked.xyz"
+# Cloudflare 403s the default Python-urllib user agent. That 403 used to raise on
+# the FIRST call and kill this whole block, so every schema check below silently
+# never ran - the traceback was dismissed as noise for weeks. Send a real UA.
+UA = "Mozilla/5.0 (X11; Linux x86_64) killswitch-qa/1.0"
 def get(p):
-    with urllib.request.urlopen(base + p, timeout=20) as r: return json.load(r)
+    req = urllib.request.Request(base + p, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=20) as r: return json.load(r)
 s = get("/api/status")
 for k in ("rust", "cs2", "minecraft_blockhead"):
     d = s.get(k, {})
     missing = [f for f in ("online", "players", "max_players") if f not in d]
     print(f"  {'ok  ' if not missing else 'FAIL'} status.{k} {'' if not missing else 'missing ' + str(missing)}")
 m = get("/api/map")
-need = ("seed", "size", "imageUrl", "totalMonuments")
-print(f"  {'ok  ' if all(x in m for x in need) else 'FAIL'} map fields {[x for x in need if x not in m]}")
+# "pending" is a legitimate state, not a failure: rustmaps takes a few minutes to
+# render a freshly wiped seed, and the API says so explicitly. Only demand the
+# image fields once the map actually exists.
+need = ("seed", "size") if m.get("pending") else ("seed", "size", "imageUrl", "totalMonuments")
+print(f"  {'ok  ' if all(x in m for x in need) else 'FAIL'} map fields {[x for x in need if x not in m]}" + (" (map still rendering)" if m.get("pending") else ""))
 print(f"  ok   map seed={m.get('seed')} size={m.get('size')} monuments={m.get('totalMonuments')}")
-for p, keys in (("/api/leaderboard", ("players", "total_kills")), ("/api/cs2/leaderboard", ("players", "total_kills", "weapons"))):
+for p, keys in (("/api/leaderboard", ("players", "total_kills")), ("/api/cs2/leaderboard", ("players", "total_kills", "weapons")), ("/api/surf/leaderboard", ("players", "records", "recent", "maps_claimed", "ranked_count"))):
     d = get(p); miss = [k for k in keys if k not in d]
     print(f"  {'ok  ' if not miss else 'FAIL'} {p} {miss if miss else ''}")
+surf = get("/api/surf/leaderboard")
+# Records must be Standard style only. A mixed-style board double-counts maps
+# and is the farming hole the in-game points design was warned about.
+print(f"  {'ok  ' if len({r['map'] for r in surf['records']}) == len(surf['records']) else 'FAIL'} surf records are one row per map ({len(surf['records'])})")
 PY
 
 echo "=== 6. rendered DOM (JS actually ran) ==="
-render(){ timeout 90 chromium --headless=new --disable-gpu --user-data-dir="$TMP/cr-$2" --virtual-time-budget=12000 --dump-dom "$1" 2>/dev/null; }
+render(){ timeout 90 chromium --headless=new --no-sandbox --disable-gpu --user-data-dir="$TMP/cr-$2" --virtual-time-budget=12000 --dump-dom "$1" 2>/dev/null; }
 render "$BASE/" home > "$TMP/r-home.html"
 for pat in 'id="event-list"><div class="event-card"' 'FIG. 5.0' 'SEED [0-9]' 'ok (' 'class="status-badge online"' 'map-img'; do
   grep -q "$pat" "$TMP/r-home.html" && ok "home renders: $pat" || bad "home missing: $pat"
@@ -80,6 +97,8 @@ grep -qE 'players' "$TMP/r-status.html" && grep -q 'ONLINE' "$TMP/r-status.html"
 render "$BASE/leaderboard" lb > "$TMP/r-lb.html"
 grep -q 'lb-tab' "$TMP/r-lb.html" && ok "leaderboard tabs render" || bad "leaderboard tabs missing"
 grep -qE 'NOBODY|No arena|lb-table' "$TMP/r-lb.html" && ok "leaderboard shows data or empty state" || bad "leaderboard neither data nor empty state"
+grep -q 'id="tab-surf"' "$TMP/r-lb.html" && ok "surf tab present" || bad "surf tab missing"
+grep -qE 'id="s-records"|No completed runs' "$TMP/r-lb.html" && ok "surf view shows records or empty state" || bad "surf view neither records nor empty state"
 
 echo "=== 7. accessibility / meta basics ==="
 for f in r-home r-status r-lb; do
