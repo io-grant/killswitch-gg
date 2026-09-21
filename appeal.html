@@ -99,6 +99,8 @@
         <label for="website">Leave this empty</label>
         <input id="website" name="website" tabindex="-1" autocomplete="off" />
       </div>
+      <div class="cf-turnstile" id="ap-turnstile" data-sitekey="" data-theme="light"
+           style="margin-bottom:18px"></div>
       <button class="ap-submit" id="ap-submit" type="submit">Send appeal</button>
       <div class="ap-msg" id="ap-msg" hidden></div>
     </form>
@@ -117,6 +119,18 @@
 </footer>
 
 <script>
+// Turnstile activates the moment a real sitekey is put in data-sitekey above
+// AND TURNSTILE_SECRET is set on the Pages project. Until then the widget is
+// inert and the form still submits - the server treats a missing secret as
+// "not configured" rather than failing every appeal closed.
+(function () {
+  const el = document.getElementById('ap-turnstile');
+  if (!el || !el.dataset.sitekey) { el && (el.hidden = true); return; }
+  const sc = document.createElement('script');
+  sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+  sc.async = true; sc.defer = true;
+  document.head.appendChild(sc);
+})();
 const f = document.getElementById('ap-form');
 const btn = document.getElementById('ap-submit');
 const msg = document.getElementById('ap-msg');
@@ -126,6 +140,8 @@ function say(text, isErr) {
 f.addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(f));
+  const ts = f.querySelector('[name="cf-turnstile-response"]');
+  if (ts) data['cf-turnstile-response'] = ts.value;
   if (!data.handle || !data.handle.trim()) return say('> we need the name you played under.', true);
   if ((data.appeal || '').trim().length < 30) return say('> give us at least a couple of sentences.', true);
   btn.disabled = true; say('> sending...', false);
