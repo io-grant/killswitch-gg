@@ -131,7 +131,7 @@ function renderRatingChart(svgId, wrapId, rows) {
       const diff = p.rating - SOT_BASE_RATING;
       tt.innerHTML = `<strong>${esc(p.name)}</strong><br/>${p.rating} rating <span class="tt-muted">(${diff >= 0 ? '+' : ''}${diff} vs start)</span>`
         + `<br/><span class="tt-muted">tier</span> ${esc(p.tier || '—')}`
-        + `<br/><span class="tt-muted">${p.wins}W-${p.losses}L · ${p.winrate}% · peak ${p.peak}</span>`;
+        + `<br/><span class="tt-muted">${p.wins}W-${p.losses}L · ${p.winrate}% · peak ${p.peak}${p.mvps ? ' · \u2605' + p.mvps + ' MVP' : ''}</span>`;
       tt.style.display = 'block';
       tt.style.left = Math.min(e.clientX + 14, window.innerWidth - tt.offsetWidth - 8) + 'px';
       tt.style.top = (e.clientY + 14) + 'px';
@@ -176,9 +176,11 @@ function renderSOTMode() {
     `<tr><td class="lb-rank ${i === 0 ? 'top' : ''}">${String(i + 1).padStart(2, '0')}</td>`
     + `<td class="lb-player">${esc(p.name)}</td><td class="lb-tier">${esc(p.tier || '—')}</td>`
     + `<td class="num">${p.rating}</td><td class="num">${p.wins}</td><td class="num">${p.losses}</td>`
-    + `<td class="num">${(+p.winrate).toFixed(1)}</td><td class="num">${p.peak}</td>`
+    + `<td class="num">${(+p.winrate).toFixed(1)}</td>`
+    + `<td class="num">${p.mvps ? '\u2605 ' + p.mvps : '\u2014'}</td>`
+    + `<td class="num">${p.peak}</td>`
     + `<td class="lb-weapon">${fmtForm(p.streak)}</td></tr>`).join('')
-    : `<tr><td colspan="9">Nobody has finished their ${sotData.provisional_games || 10} placement games in this mode yet.</td></tr>`;
+    : `<tr><td colspan="10">Nobody has finished their ${sotData.provisional_games || 10} placement games in this mode yet.</td></tr>`;
 
   $('t-teams-panel').hidden = !teams.length;
   if (teams.length) {
