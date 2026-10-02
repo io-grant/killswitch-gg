@@ -126,7 +126,7 @@ document.querySelectorAll('[data-close-menu]').forEach(el => el.addEventListener
 
 // ── Keyboard: number keys jump to sections, any key scrolls past the hero ──
 const DISCORD = 'https://discord.gg/Hp8sRPVgkP';
-const KEYMAP = { '1': '#servers', '2': '#minecraft', '3': '/leaderboard', '4': '#events', '5': '/status', '6': '#community', 'Enter': DISCORD };
+const KEYMAP = { '1': '#servers', '2': '#minecraft', '3': '/leaderboard', '4': '#events', '5': '/status', '6': '#community', '7': '/ranked', 'Enter': DISCORD };
 function isTyping() { const t = document.activeElement; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
 // Enter belongs to whatever the user has focused (link, button) before it belongs to us.
 function isFocusedControl() { const t = document.activeElement; return !!t && (t.tagName === 'A' || t.tagName === 'BUTTON' || t.tagName === 'SUMMARY' || t.getAttribute('role') === 'button'); }
