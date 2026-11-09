@@ -2,6 +2,7 @@
 /status.html       /status         301
 /leaderboard.html  /leaderboard    301
 /ranked.html       /ranked         301
+/events.html       /events         301
 /bot               /ranked         302
 /manual            /KILLSWITCH-Ranked-Manual.pdf   302
 /discord           https://discord.gg/Hp8sRPVgkP     302

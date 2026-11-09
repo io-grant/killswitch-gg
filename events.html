@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events — KILLSWITCH.GG</title>
+  <meta name="description" content="The KILLSWITCH.GG community calendar: Rust wipes every Thursday 16:00 CT, the CS2 surf map of the week, and community nights announced in Discord." />
+  <meta property="og:title" content="KILLSWITCH.GG — Events" />
+  <meta property="og:description" content="Rust wipes, the surf map of the week, and community nights. Times in US Central." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://killswitch-gg.pages.dev/img/og.png" />
+  <meta name="theme-color" content="#0000AA" />
+  <link rel="icon" href="favicon.ico" sizes="32x32" />
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://status.superfucked.xyz" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .cal-hero { padding: 56px 0 40px; min-height: 60vh; }
+    .cal-desc { margin-top: 4px; white-space: pre-line; }
+    .cal-link { display: inline-block; margin-top: 6px; font-size: 0.78rem; color: inherit; }
+    .cal-note { font-size: 0.78rem; color: var(--ink-muted); margin: 18px 0 0; }
+    .cal-legend { margin-top: 22px; font-size: 0.85rem; color: var(--ink-muted); max-width: 720px; }
+    .cal-legend a { color: inherit; }
+  </style>
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="canonical" href="https://killswitch-gg.pages.dev/events" />
+</head>
+<body>
+<a class="skip" href="#nav">Skip to content</a>
+
+<nav id="nav">
+  <a href="/" class="nav-logo">Killswitch<span>.gg</span></a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">[=]</button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="/#servers" data-key="1">Servers</a></li>
+    <li><a href="/#minecraft" data-key="2">Minecraft pack</a></li>
+    <li><a href="/leaderboard" data-key="3">Ranking</a></li>
+    <li><a href="/#events" data-key="4">Wipes</a></li>
+    <li><a href="/status" data-key="5">Status</a></li>
+    <li><a href="/#community" data-key="6">Discord</a></li>
+    <li><a href="/ranked" data-key="7">Ranked bot</a></li>
+    <li><a href="/events" data-key="8" class="active">Events</a></li>
+  </ul>
+  <a href="https://discord.gg/Hp8sRPVgkP" class="btn-join" target="_blank" rel="noopener">[ENTER] Join Discord</a>
+</nav>
+
+<section class="band band-white cal-hero">
+  <div class="container">
+    <p class="sec-num">SECTION 8 · CALENDAR</p>
+    <h2 class="sec-title">Events</h2>
+    <p class="sec-sub">Wipes, the surf map of the week, and community nights. Times in US Central.</p>
+
+    <div class="event-list" id="cal-list"></div>
+
+    <p class="cal-note" id="cal-note">&gt; reading the calendar…</p>
+    <p class="cal-legend">Community nights are created in Discord first: open the Events tab in the
+      server to get a reminder. <a href="https://discord.gg/Hp8sRPVgkP" target="_blank" rel="noopener">Join Discord →</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom"><span>© 2026 8dot Media · KILLSWITCH.GG</span><span>Press any key.</span></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+<script src="events.js"></script>
+</body>
+</html>

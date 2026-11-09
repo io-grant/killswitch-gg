@@ -12,7 +12,7 @@ ok(){ printf '  ok   %s\n' "$1"; PASS=$((PASS+1)); }
 bad(){ printf '  FAIL %s\n' "$1"; FAIL=$((FAIL+1)); }
 
 echo "=== 1. routes ==="
-for p in "" status leaderboard status.html leaderboard.html 404.html robots.txt sitemap.xml favicon.ico; do
+for p in "" status leaderboard events status.html leaderboard.html 404.html robots.txt sitemap.xml favicon.ico; do
   code=$(curl -sL -o /dev/null -w '%{http_code}' -m 20 "$BASE/$p")
   [ "$code" = 200 ] && ok "/$p ($code)" || bad "/$p ($code)"
 done
@@ -50,7 +50,7 @@ grep -oE 'https?://[^"]+' "$TMP/home.html" | grep -vE 'killswitch-gg|fonts\.(goo
 done
 
 echo "=== 5. APIs ==="
-for ep in api/status api/leaderboard api/cs2/leaderboard api/surf/leaderboard api/map health; do
+for ep in api/status api/leaderboard api/cs2/leaderboard api/surf/leaderboard api/events api/map health; do
   code=$(curl -s -o "$TMP/api.json" -w '%{http_code}' -m 25 "https://status.superfucked.xyz/$ep")
   cors=$(curl -sI -m 15 "https://status.superfucked.xyz/$ep" | grep -ci 'access-control-allow-origin' || true)
   if [ "$code" = 200 ]; then ok "$ep (200, CORS hdr: $cors)"; else bad "$ep ($code)"; fi
@@ -99,6 +99,8 @@ grep -q 'lb-tab' "$TMP/r-lb.html" && ok "leaderboard tabs render" || bad "leader
 grep -qE 'NOBODY|No arena|lb-table' "$TMP/r-lb.html" && ok "leaderboard shows data or empty state" || bad "leaderboard neither data nor empty state"
 grep -q 'id="tab-surf"' "$TMP/r-lb.html" && ok "surf tab present" || bad "surf tab missing"
 grep -qE 'id="s-records"|No completed runs' "$TMP/r-lb.html" && ok "surf view shows records or empty state" || bad "surf view neither records nor empty state"
+render "$BASE/events" ev > "$TMP/r-events.html"
+grep -q 'id="cal-list"><div class="event-card"' "$TMP/r-events.html" && grep -q 'Rust wipe' "$TMP/r-events.html" && ok "events page renders the calendar" || bad "events page calendar empty"
 
 echo "=== 7. accessibility / meta basics ==="
 for f in r-home r-status r-lb; do
